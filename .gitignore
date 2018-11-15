@@ -1,2 +1,48 @@
 *.class
 *.log
+
+# sbt specific
+.cache
+.history
+.lib/
+dist/*
+target/
+!target/scala-2.12/api/lib
+!target/scala-2.12/api/org
+!target/scala-2.12/api/index.html
+!target/scala-2.12/api/index.js
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
+.worksheet
+/.idea/
+!/project/.sbtserver
+!/project/.sbtserver.lock
+/project/.sbtserver.lock
+/project/.sbtserver
+/bin/
+/logs/
+/database/
+/elastic_data/
+
+# NPM
+/node_modules/
+*.tgz
+
+# JS Bundles
+/build
+
+# OS-specific
+.directory
+.DS_Store
+ls
+
+# SASS
+.sass-cache
+
+project/.idea
+project/project
