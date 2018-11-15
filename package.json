@@ -14,7 +14,7 @@
   ],
   "main": "build/index.js",
   "files": [
-    "build"
+    "build/index.js"
   ],
   "watch": {
     "test": {
@@ -30,7 +30,7 @@
   "scripts": {
     "flow": "flow",
     "build": "flow && webpack --progress --colors --config openlaw.webpack.config.js && webpack --mode development --config libs.webpack.config.js && webpack --config webpack.dev.js",
-    "build_prod": "flow && webpack --progress --colors --config openlaw.webpack.config.js && webpack --mode production --config libs.webpack.config.js && webpack --config webpack.prod.js && npx babel js/src/ -d build",
+    "build_prod": "flow && webpack --progress --colors --config openlaw.webpack.config.js && webpack --mode production --config libs.webpack.config.js && webpack --config webpack.prod.js",
     "watch": "flow && webpack --progress --colors --config openlaw.webpack.config.js && webpack --mode development --config libs.webpack.config.js && webpack --progress --colors --watch --config webpack.dev.js",
     "lint": "eslint --c .eslintrc.json 'js/src/**/*.js' --fix",
     "format": "prettier --config .prettierrc 'js/src/**/*.js' --write",
