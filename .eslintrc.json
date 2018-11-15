@@ -7,8 +7,7 @@
     "extends": [
       "eslint:recommended",
       "plugin:flowtype/recommended",
-      "plugin:security/recommended",
-      "plugin:react/recommended"
+      "plugin:security/recommended"
     ],
     "globals": {
         "describe": true,
