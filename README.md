@@ -1,4 +1,4 @@
-# Shared JavaScript libraries for the OpenLaw project.
+# Shared JavaScript libraries for the OpenLaw project
 
 ## Getting started
 
