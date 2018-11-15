@@ -1,0 +1,15 @@
+{
+  "presets": ["react", "env"],
+  "plugins": [
+    "transform-class-properties",
+    "transform-object-rest-spread",
+    ["module-resolver", {
+      "alias": {
+        "Openlaw": "./build/Openlaw.bundle.js"
+      }
+    }]
+  ],
+  "ignore": [
+    "./build/Openlaw.bundle.js"
+  ]
+}

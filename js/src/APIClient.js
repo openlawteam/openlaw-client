@@ -107,7 +107,7 @@ class APIClient {
   }
 
   async uploadContract(params: Object): Promise<string> {
-    const headers =  {
+    const headers = {
       'Content-Type': 'text/plain;charset=UTF-8',
     };
     return this.postCall('/upload/contract', JSON.stringify(params), headers).then(response => response.data);
