@@ -127,8 +127,7 @@ class APIClient {
       Origin: 'location.hostname',
       'Access-Control-Allow-Origin': '*',
     };
-    return this.getCall('/driveAuthPage/' + id, headers)
-      .then(response => (window.location = response.data));
+    return this.getCall('/driveAuthPage/' + id, headers);
   }
 
   async sendDraft(
@@ -237,11 +236,7 @@ class APIClient {
   async deleteUser(userId: string) {
     return this.getCall('/users/delete' ,{userId})
       .then(response => {
-        const responseJson = response.data;
-        if (responseJson.reload) {
-          window.location.replace('/');
-        }
-        return responseJson;
+        return response.data;
       });
   }
 
