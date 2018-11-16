@@ -1,5 +1,7 @@
 # Shared JavaScript libraries for the OpenLaw project
 
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/openlawteam/openlaw-client.svg?columns=all)](https://waffle.io/openlawteam/openlaw-client)
+
 ## Getting started
 
 If you want to learn more about our libraries, please read our [OpenLaw core overview](https://docs.openlaw.io/openlaw-core/), which describes the Scala portion of the code.
