@@ -24,20 +24,30 @@ lazy val root = (project in file(".")).settings(
   name := "openlaw-core-client",
   scalaVersion := scalaV,
   libraryDependencies ++= Seq(
-    "org.openlaw"              %%% "openlaw-core"              % "0.1.1-SNAPSHOT"
+    "org.openlaw"              %%% "openlaw-core"              % "0.1.1"
   ),
   relativeSourceMaps := true,
-  artifactPath in (Compile, fastOptJS) := crossTarget.value / "client.js",
   artifactPath in (Compile, fullOptJS) := crossTarget.value / "client.js",
   npmBuild := {
     (fastOptJS in Compile).value
     "npm run build" !
   },
+  npmBuildProd := {
+    (fullOptJS in Compile).value
+    "npm run build_prod" !
+  },
   npmPack := {
     npmBuild.value
+    "npm pack" !
+  },
+
+  npmPackProd := {
+    npmBuildProd.value
     "npm pack" !
   }
 ).enablePlugins(ScalaJSPlugin)
 
 lazy val npmBuild = taskKey[Unit]("Builds NPM module")
+lazy val npmBuildProd = taskKey[Unit]("Builds NPM module for production")
 lazy val npmPack = taskKey[Unit]("Packs NPM module")
+lazy val npmPackProd = taskKey[Unit]("Packs NPM module for production")
