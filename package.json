@@ -14,7 +14,7 @@
   ],
   "main": "build/index.js",
   "files": [
-    "build/index.js"
+    "build"
   ],
   "watch": {
     "test": {
