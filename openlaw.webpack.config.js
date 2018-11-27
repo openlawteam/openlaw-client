@@ -8,6 +8,6 @@ module.exports = {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'build'),
     libraryTarget: 'umd',
-    globalObject: "(typeof window !== 'undefined' ? window : this)"
+    globalObject: '(typeof window !== \'undefined\' ? window : this)'
   }
 };

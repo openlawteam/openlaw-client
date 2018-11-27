@@ -389,7 +389,7 @@ class APIClient {
     return this.getCall('/user/getStripeAccounts').then(response => response.data);
   }
 
-  getCommunityActivity(
+  async getCommunityActivity(
     filter: string,
     page: number,
     pageSize: number,
