@@ -55,7 +55,7 @@ object Openlaw {
       compiledTemplate,
       prepareParameters(jsParams),
       templates,
-      proofs.flatMap({ case (userId, proof) => OpenlawSignatureProof.deserialize(proof).map(UserId(userId) -> _).toOption}).toMap
+      proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email) -> _).toOption}).toMap
     )
     handleExecutionResult(executionResult)
   }
@@ -395,18 +395,9 @@ object Openlaw {
 
   @JSExport
   def createIdentity(userId:js.UndefOr[String], email:String):Identity = {
-    //FUTURE_WORK: implement this
-    /*
-    identifiers.map(obj => {
-      val providerId = obj.selectDynamic("provider").toString
-      val id = obj.selectDynamic("id").toString
-      IdentityIdentifier(providerId, id)
-    })
-    */
     Identity(
       id = userId.toOption.map(UserId.apply),
-      email = Email(email),
-      identifiers = Seq(IdentityIdentifier("openlaw", email))
+      email = Email(email)
     )
   }
 
