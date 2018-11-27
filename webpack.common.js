@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'development',
@@ -13,8 +14,17 @@ module.exports = {
     filename: '[name].js',
     path: path.resolve(__dirname, 'build'),
     libraryTarget: 'umd',
-    globalObject: "(typeof window !== 'undefined' ? window : this)"
+    globalObject: '(typeof window !== \'undefined\' ? window : this)'
   },
+  target: 'node',
+  node: {
+    process: false
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    })
+  ],
   module: {
     rules: [
       {

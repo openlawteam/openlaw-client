@@ -36,9 +36,10 @@ user with a StandardUser role or an Admin role. Log in before making
 those calls.
 */
 apiClient.login('openlawuser+1@gmail.com', 'password');
-const templateDetails = apiClient.getTemplate('Advisor Agreement');
 
-console.log(templateDetails);
+apiClient.getTemplate('Advisor Agreement').then(result => {
+  console.log(result);
+});
 /*
 {
   "id": "d76ede8ca437f6da06b1e09f115393318faf29fdc5bdaaf0b2e889886136edf4",
