@@ -10,7 +10,7 @@ lazy val repositories = Seq(
   "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
   "ethereumj repository" at "http://dl.bintray.com/ethereum/maven",
   "maven central" at "https://mvnrepository.com/repos/central",
-  "core bintray repository" at "https://openlaw.bintray.com/openlaw-core",
+  "core bintray repository" at "https://dl.bintray.com/openlawos/openlaw-core",
   Resolver.mavenLocal
 )
 
