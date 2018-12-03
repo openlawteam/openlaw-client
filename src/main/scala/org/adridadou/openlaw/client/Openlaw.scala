@@ -10,7 +10,6 @@ import scala.scalajs.js
 import cats.implicits._
 import org.adridadou.openlaw.oracles.{OpenlawSignatureProof, UserId}
 import org.adridadou.openlaw.parser.contract.ParagraphEdits
-import org.adridadou.openlaw.parser.template.printers.ReviewHtmlAgreementPrinter
 import org.adridadou.openlaw.values.{TemplateParameters, TemplateTitle}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 
@@ -321,10 +320,7 @@ object Openlaw {
     render(agreement, hiddenVariables, jsOverriddenParagraphs, markdown.forPreview)
 
   @JSExport
-  def parseMarkdown(str:String):String =
-    markdown.handleOverriddenParagraph(ReviewHtmlAgreementPrinter(), str)
-        .paragraphFooter
-        .result
+  def parseMarkdown(str:String):String = markdown.forReviewParagraph(str)
 
   @JSExport
   def renderParagraphForEdit(agreement: StructuredAgreement, index:Int): String =
