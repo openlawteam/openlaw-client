@@ -10,7 +10,7 @@ To use OpenLaw core and our APIClient library in your JavaScript project, you ca
 
 ## Troubleshooting 
 
-Before the first time you run `npm run build` or `npm run build_prod`, run `sbt run` from the project root directory to generate the `client.js` file. Otherwise, you will see an error like the following:
+Before the first time you run `npm run build` or `npm run build_prod`, run `sbt fullOptJS` from the project root directory to generate the `client.js` file. Otherwise, you will see an error like the following:
 
 ```
 ERROR in Entry module not found: Error: Can't resolve '/$YOUR_DIR/openlaw-client/target/scala-2.12/client.js' in '/$YOUR_DIR/openlaw-client'.
