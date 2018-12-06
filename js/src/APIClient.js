@@ -54,7 +54,7 @@ class APIClient {
         postCallDetails.auth = Object.assign({}, this.conf.auth);
       }
 
-      const urlRegex = new RegExp(/contract\/docx|contract\/pdf|contract\/json/);
+      const urlRegex = new RegExp(/contract\/docx|contract\/pdf/);
       if (urlRegex.test(url)) {
         // $FlowFixMe - add new property for flow sealed object
         postCallDetails.responseType = 'blob';
@@ -91,7 +91,7 @@ class APIClient {
         getCallDetails.auth = Object.assign({}, this.conf.auth);
       }
 
-      const urlRegex = new RegExp(/contract\/docx|contract\/pdf|contract\/json/);
+      const urlRegex = new RegExp(/templates\/json|draft\/json|contract\/docx|contract\/pdf|contract\/json/);
       if (urlRegex.test(url)) {
         // $FlowFixMe - add new property for flow sealed object
         getCallDetails.responseType = 'blob';
@@ -455,6 +455,50 @@ class APIClient {
         let fileName = 'unknown';
         if (contentDisposition) {
           const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+          if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+        }
+        link.setAttribute('download', fileName);
+        // $FlowFixMe
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      });
+  }
+
+  async downloadTemplateAsJson(title: string) {
+    return this.getCall('/templates/json/' + title)
+      .then(response => {
+        const blob = new Blob([response.data], {type: response.data.type});
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = 'unknown';
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename=(.+)/);
+          if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+        }
+        link.setAttribute('download', fileName);
+        // $FlowFixMe
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      });
+  }
+
+  async downloadDraftAsJson(draftId: string) {
+    return this.getCall('/draft/json/' + draftId)
+      .then(response => {
+        const blob = new Blob([response.data], {type: response.data.type});
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = 'unknown';
+        if (contentDisposition) {
+          const fileNameMatch = contentDisposition.match(/filename=(.+)/);
           if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
         }
         link.setAttribute('download', fileName);
