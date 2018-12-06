@@ -21,7 +21,7 @@ class APIClient {
   loginPromise: Promise<Object> = Promise.resolve({});
 
   constructor(conf: Configuration | string) {
-    if(typeof conf === 'string') {
+    if (typeof conf === 'string') {
       this.conf = {root: conf, auth: undefined};
     } else {
       this.conf = Object.assign({}, conf);
@@ -36,14 +36,11 @@ class APIClient {
     return this.waitForLogin().then(() => {
       let callHeaders = Object.assign({}, headers);
       callHeaders['Content-Type'] = callHeaders['Content-Type'] || 'application/x-www-form-urlencoded';
-      if(this.jwt) {
+      if (this.jwt) {
         callHeaders['OPENLAW_JWT'] = this.jwt;
       }
 
       const data = typeof params === 'string' ? params : queryString.stringify(params);
-
-      const urlRegex = new RegExp(/contract\/docx|contract\/pdf|contract\/json/);
-      const responseType = urlRegex.test(url) ? 'blob' : 'json';
 
       const postCallDetails = {
         method: 'post',
@@ -51,11 +48,16 @@ class APIClient {
         data: data,
         headers: callHeaders,
         auth: undefined,
-        responseType: responseType
       };
 
-      if(this.conf.auth) {
+      if (this.conf.auth) {
         postCallDetails.auth = Object.assign({}, this.conf.auth);
+      }
+
+      const urlRegex = new RegExp(/contract\/docx|contract\/pdf|contract\/json/);
+      if (urlRegex.test(url)) {
+        // add new property for flow sealed object
+        (postCallDetails: Object).responseType = 'blob';
       }
 
       return axios(postCallDetails).then(result => {
@@ -73,34 +75,36 @@ class APIClient {
     return this.waitForLogin().then(() => {
       let callHeaders = Object.assign({}, headers);
       let paramsUrl = '';
-      if(params) {
+      if (params) {
         paramsUrl = '?' + queryString.stringify(params);
       }
-      if(this.jwt) {
+      if (this.jwt) {
         callHeaders['OPENLAW_JWT'] = this.jwt;
       }
-
-      const urlRegex = new RegExp(/contract\/docx|contract\/pdf|contract\/json/);
-      const responseType = urlRegex.test(url) ? 'blob' : 'json';
 
       const getCallDetails = {
         headers: callHeaders,
         auth: undefined,
-        responseType: responseType
       };
 
-      if(this.conf.auth) {
+      if (this.conf.auth) {
         getCallDetails.auth = Object.assign({}, this.conf.auth);
       }
 
+      const urlRegex = new RegExp(/contract\/docx|contract\/pdf|contract\/json/);
+      if (urlRegex.test(url)) {
+        // add new property for flow sealed object
+        (getCallDetails: Object).responseType = 'blob';
+      }
+
       return axios.get(this.conf.root + url + paramsUrl, getCallDetails).then(result => {
-        if(result.headers['openlaw_jwt']) {
+        if (result.headers['openlaw_jwt']) {
           this.jwt = result.headers['openlaw_jwt'];
         }
         return result;
       })
         .catch((error) => {
-          if(error.data) {
+          if (error.data) {
             throw error.data;
           }
           throw error;
