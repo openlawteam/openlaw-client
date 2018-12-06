@@ -56,8 +56,8 @@ class APIClient {
 
       const urlRegex = new RegExp(/contract\/docx|contract\/pdf|contract\/json/);
       if (urlRegex.test(url)) {
-        // add new property for flow sealed object
-        (postCallDetails: Object).responseType = 'blob';
+        // $FlowFixMe - add new property for flow sealed object
+        postCallDetails.responseType = 'blob';
       }
 
       return axios(postCallDetails).then(result => {
@@ -93,8 +93,8 @@ class APIClient {
 
       const urlRegex = new RegExp(/contract\/docx|contract\/pdf|contract\/json/);
       if (urlRegex.test(url)) {
-        // add new property for flow sealed object
-        (getCallDetails: Object).responseType = 'blob';
+        // $FlowFixMe - add new property for flow sealed object
+        getCallDetails.responseType = 'blob';
       }
 
       return axios.get(this.conf.root + url + paramsUrl, getCallDetails).then(result => {
