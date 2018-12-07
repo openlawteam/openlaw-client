@@ -1,15 +1,23 @@
 {
-  "presets": ["react", "env"],
+  "presets": [
+    "flow",
+    ["env", {"modules": false}]
+  ],
   "plugins": [
     "transform-class-properties",
     "transform-object-rest-spread",
-    ["module-resolver", {
-      "alias": {
-        "Openlaw": "./build/Openlaw.bundle.js"
-      }
+    ["transform-runtime", {
+      "polyfill": false,
+      "regenerator": true,
+      "moduleName": "babel-runtime"
     }]
+    // ["module-resolver", {
+    //   "alias": {
+    //     "Openlaw": "./target/scala-2.12/client.js"
+    //   }
+    // }]
   ],
   "ignore": [
-    "./build/Openlaw.bundle.js"
+    "./target/scala-2.12/client.js"
   ]
 }

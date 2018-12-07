@@ -569,4 +569,4 @@ class APIClient {
 
 }
 
-module.exports = APIClient;
+export default APIClient;
