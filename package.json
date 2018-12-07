@@ -12,6 +12,7 @@
     "ethereum",
     "smart contract"
   ],
+  "sideEffects": false,
   "main": "dist/openlaw.js",
   "files": [
     "dist"
