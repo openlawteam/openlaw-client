@@ -1,45 +1,32 @@
 const path = require('path');
-const webpack = require('webpack');
+
+/* TODO
+ *  - Make babel-polyfill an npm peerDependency as we shouldn't
+ *    bundle-up a polyfill in our packaged app, and thus the consumer is required to load it.
+ */
 
 module.exports = {
   mode: 'development',
   entry: {
-    // babel-polyfill is so we can use async/await
-    index: ['babel-polyfill', './js/src/index.js']
-  },
-  externals: {
-    jquery: 'jQuery',
+    index: './js/src/index.js',
   },
   output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'build'),
+    filename: 'openlaw.js',
+    path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'umd',
     globalObject: '(typeof window !== \'undefined\' ? window : this)'
   },
-  target: 'node',
-  node: {
-    process: false
-  },
-  plugins: [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-    })
-  ],
+  // target: 'node',
+  // node: {
+  //   process: false
+  // },
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
       },
-      //{ // Re-Enable this if we want lint enforced during build
-        //test: /\.jsx?$/,
-        //enforce: "pre",
-        //loader: 'eslint-loader',
-        //options: {
-          //configFile: '.eslintrc.json'
-        //},
-      //}
     ]
   }
 };

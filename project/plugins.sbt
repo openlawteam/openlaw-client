@@ -4,7 +4,7 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 resolvers += "Typesafe Repository" at "https://repo.typesafe.com/typesafe/releases/"
 resolvers += Resolver.url("sbt-plugins", url("https://dl.bintray.com/ssidorenko/sbt-plugins/"))(Resolver.ivyStylePatterns)
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.25")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.26")
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.0")
 addSbtPlugin("org.foundweekends" % "sbt-bintray" % "0.5.4")
 addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.7")
