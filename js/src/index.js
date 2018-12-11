@@ -1,7 +1,8 @@
-import APIClient from './APIClient';
-import {Openlaw} from '../../target/scala-2.12/client.js';
+/**
+ * Webpack entry-point for UMD build
+ */
 
-export {
-  APIClient,
-  Openlaw as default,
-};
+import {Openlaw} from '../../target/scala-2.12/client.js';
+import APIClient from './APIClient';
+
+export {Openlaw, APIClient};

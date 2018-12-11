@@ -1,21 +1,13 @@
 {
   "presets": [
-    "flow",
-    ["env", {"modules": false}]
+    "@babel/preset-flow",
+    ["@babel/preset-env", {"modules": false}]
   ],
   "plugins": [
-    "transform-class-properties",
-    "transform-object-rest-spread",
-    ["transform-runtime", {
-      "polyfill": false,
-      "regenerator": true,
-      "moduleName": "babel-runtime"
+    "@babel/plugin-proposal-class-properties",
+    ["@babel/transform-runtime", {
+      "regenerator": true
     }]
-    // ["module-resolver", {
-    //   "alias": {
-    //     "Openlaw": "./target/scala-2.12/client.js"
-    //   }
-    // }]
   ],
   "ignore": [
     "./target/scala-2.12/client.js"
