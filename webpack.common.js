@@ -1,25 +1,13 @@
 const path = require('path');
 
-/* TODO
- *  - Make babel-polyfill an npm peerDependency as we shouldn't
- *    bundle-up a polyfill in our packaged app, and thus the consumer is required to load it.
- */
-
-module.exports = {
-  mode: 'development',
-  entry: {
-    index: './js/src/index.js',
-  },
+const umd = {
+  entry: './js/src/index.js',
   output: {
     filename: 'openlaw.js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'dist/umd'),
+    library: 'openlaw',
     libraryTarget: 'umd',
-    globalObject: '(typeof window !== \'undefined\' ? window : this)'
   },
-  // target: 'node',
-  // node: {
-  //   process: false
-  // },
   module: {
     rules: [
       {
@@ -28,5 +16,27 @@ module.exports = {
         loader: 'babel-loader',
       },
     ]
-  }
+  },
 };
+
+const node = {
+  entry: './js/src/index.js',
+  target: 'node',
+  output: {
+    filename: 'openlaw.js',
+    path: path.resolve(__dirname, 'dist/node'),
+    library: 'openlaw',
+    libraryTarget: 'commonjs2',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+      },
+    ]
+  },
+};
+
+module.exports = [umd, node];
