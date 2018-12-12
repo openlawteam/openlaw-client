@@ -13,9 +13,11 @@
     "smart contract"
   ],
   "sideEffects": false,
-  "main": "dist/node/openlaw.js",
+  "main": "dist/cjs/openlaw.js",
   "module": "dist/esm/index.js",
   "files": [
+    "dist/cjs",
+    "dist/esm",
     "dist/umd"
   ],
   "watch": {
@@ -35,7 +37,7 @@
     "build:esm": "rimraf dist/esm && npm run build:esm:apiclient && npm run build:esm:openlaw && npm run build:esm:index",
     "build:esm:openlaw": "npx cpy 'target/scala-2.12/client.js' 'dist/esm/' && npx terser dist/esm/client.js -cm --module -o dist/esm/openlaw.js && rimraf dist/esm/client.js",
     "build:esm:apiclient": "npx babel js/src/APIClient.js --out-dir dist/esm/ --copy-files --presets=minify",
-    "build:esm:index": "npx cpy --rename=index.js 'js/src/index.esm.js' 'dist/esm/'",
+    "build:esm:index": "npx cpy 'js/src/index.js' 'dist/esm/'",
     "build_prod": "flow && webpack --config webpack.prod.js && npm run build:esm",
     "watch": "flow && webpack --progress --colors --watch --config webpack.dev.js",
     "lint": "eslint --c .eslintrc.json 'js/src/**/*.js' --fix",
