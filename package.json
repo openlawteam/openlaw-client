@@ -33,7 +33,7 @@
   },
   "scripts": {
     "flow": "flow",
-    "build": "webpack --progress --colors --config webpack.dev.js && npm run build:esm",
+    "build": "flow && webpack --progress --colors --config webpack.dev.js && npm run build:esm",
     "build:esm": "rimraf dist/esm && npm run build:esm:apiclient && npm run build:esm:openlaw && npm run build:esm:index",
     "build:esm:openlaw": "npx cpy 'target/scala-2.12/client.js' 'dist/esm/' && npx terser dist/esm/client.js -cm --module -o dist/esm/openlaw.js && rimraf dist/esm/client.js",
     "build:esm:apiclient": "npx babel js/src/APIClient.js --out-dir dist/esm/ --copy-files --presets=minify",
