@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 const umd = {
   entry: './js/src/index.js',
@@ -19,15 +20,14 @@ const umd = {
   },
 };
 
-const node = {
+const cjs = {
   entry: './js/src/index.js',
-  target: 'node',
   output: {
     filename: 'openlaw.js',
-    path: path.resolve(__dirname, 'dist/node'),
-    library: 'openlaw',
+    path: path.resolve(__dirname, 'dist/cjs'),
     libraryTarget: 'commonjs2',
   },
+  target: 'node',
   module: {
     rules: [
       {
@@ -39,4 +39,4 @@ const node = {
   },
 };
 
-module.exports = [umd, node];
+module.exports = [umd, cjs];
