@@ -337,6 +337,11 @@ class APIClient {
     );
   }
 
+  async prepareSignature(contractId: string) {
+    return this.getCall('/contract/prepareSignature/' + contractId)
+      .then(response => response.data);
+  }
+
   async changeContractAlias(contractId: string, newName: string) {
     return this.getCall('/contract/alias/' + contractId,
       {
