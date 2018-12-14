@@ -358,19 +358,9 @@ class APIClient {
     ).then(response => response.data);
   }
 
-  async searchAddress(
-    term: string,
-    latitude: number,
-    longitude: number,
-  ) {
-    return this.getCall(
-      '/address/search',
-      {
-        latitude,
-        longitude,
-        term,
-      },
-    ).then(response => response.data);
+  async searchAddress(term: string) {
+    return this.getCall('/address/search', {term})
+      .then(response => response.data);
   }
 
   async getUserDetails(email: string) {
