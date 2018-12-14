@@ -14,7 +14,7 @@
   ],
   "sideEffects": false,
   "main": "dist/cjs/openlaw.js",
-  "module": "dist/esm/index.js",
+  "module": "dist/esm/lib/index.js",
   "files": [
     "dist"
   ],
@@ -32,10 +32,10 @@
   "scripts": {
     "flow": "flow",
     "build": "rimraf dist && npm run build:esm && rollup -c --environment BUILD:development",
-    "build:esm": "rimraf dist/esm && npm run build:esm:apiclient && npm run build:esm:openlaw && npm run build:esm:index",
-    "build:esm:openlaw": "npx cpy 'target/scala-2.12/client.js' 'dist/esm/' && npx terser dist/esm/client.js -cm --module -o dist/esm/openlaw.js && rimraf dist/esm/client.js",
-    "build:esm:apiclient": "npx babel js/src/APIClient.js --out-dir dist/esm/ --copy-files --presets=minify",
-    "build:esm:index": "npx cpy 'js/src/index.js' 'dist/esm/'",
+    "build:esm": "npm run build:esm:apiclient && npm run build:esm:openlaw && npm run build:esm:index",
+    "build:esm:openlaw": "npx cpy --rename=openlaw.js 'target/scala-2.12/client.js' 'dist/esm/lib/' && npx terser dist/esm/lib/openlaw.js -cm --module -o dist/esm/lib/openlaw.js",
+    "build:esm:apiclient": "npx cpy --rename=apiclient.js 'js/src/APIClient.js' 'dist/esm/lib/' && npx babel dist/esm/lib/apiclient.js -o dist/esm/lib/apiclient.js && npx terser dist/esm/lib/apiclient.js -cm --module -o dist/esm/lib/apiclient.js",
+    "build:esm:index": "npx cpy --rename=index.js 'js/src/index.esm.js' 'dist/esm/lib/'",
     "build_prod": "rimraf dist && npm run build:esm && rollup -c --environment BUILD:production",
     "watch": "flow && webpack --progress --colors --watch --config webpack.dev.js",
     "lint": "eslint --c .eslintrc.json 'js/src/**/*.js' --fix",

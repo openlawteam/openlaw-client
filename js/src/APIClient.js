@@ -24,7 +24,7 @@ type Template = {
   creatorId: string,
 };
 
-class APIClient {
+export class APIClient {
 
   conf: Configuration;
   jwt: string = '';
@@ -583,5 +583,3 @@ class APIClient {
   }
 
 }
-
-export default APIClient;
