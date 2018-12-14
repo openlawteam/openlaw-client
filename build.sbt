@@ -18,13 +18,13 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 javacOptions ++= Seq("-Xms512M", "-Xmx1024M", "-Xss1M", "-XX:+CMSClassUnloadingEnabled")
 
 lazy val root = (project in file(".")).settings(
-  scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule)},
+  scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule)},
   resolvers ++= repositories,
   organization := "org.openlaw",
   name := "openlaw-core-client",
   scalaVersion := scalaV,
   libraryDependencies ++= Seq(
-    "org.openlaw"              %%% "openlaw-core"              % "0.1.7"
+    "org.openlaw"              %%% "openlaw-core"              % "0.1.8"
   ),
   relativeSourceMaps := true,
   artifactPath in (Compile, fullOptJS) := crossTarget.value / "client.js",
