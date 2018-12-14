@@ -3,18 +3,28 @@ import axios from 'axios';
 import queryString from 'query-string';
 
 type AuthConfiguration = {
-    username: string,
-    password: string
+  username: string,
+  password: string,
 }
 
 type Configuration = {
-    root: string,
-    auth: ?AuthConfiguration
+  root: string,
+  auth: ?AuthConfiguration,
 }
 
-import type {Template} from './shared-types.js';
+type Template = {
+  id: string,
+  name: string,
+  compiledTemplate: Object,
+  structuredDocument: Object,
+  timestamp: number,
+  title: string,
+  version: string,
+  index: number,
+  creatorId: string,
+};
 
-class APIClient {
+export class APIClient {
 
   conf: Configuration;
   jwt: string = '';
@@ -573,5 +583,3 @@ class APIClient {
   }
 
 }
-
-module.exports = APIClient;

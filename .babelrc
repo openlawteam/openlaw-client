@@ -1,15 +1,15 @@
 {
-  "presets": ["react", "env"],
+  "presets": [
+    "@babel/preset-flow",
+    ["@babel/preset-env", {"modules": false}]
+  ],
   "plugins": [
-    "transform-class-properties",
-    "transform-object-rest-spread",
-    ["module-resolver", {
-      "alias": {
-        "Openlaw": "./build/Openlaw.bundle.js"
-      }
+    "@babel/plugin-proposal-class-properties",
+    ["@babel/transform-runtime", {
+      "regenerator": true
     }]
   ],
   "ignore": [
-    "./build/Openlaw.bundle.js"
+    "./target/scala-2.12/client.js"
   ]
 }
