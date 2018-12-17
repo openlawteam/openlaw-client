@@ -1,8 +1,9 @@
+import scala.language.postfixOps
 import sys.process._
 
 licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
-lazy val scalaV = "2.12.7"
+lazy val scalaV = "2.12.8"
 
 lazy val repositories = Seq(
   Resolver.jcenterRepo,
@@ -24,7 +25,7 @@ lazy val root = (project in file(".")).settings(
   name := "openlaw-core-client",
   scalaVersion := scalaV,
   libraryDependencies ++= Seq(
-    "org.openlaw"              %%% "openlaw-core"              % "0.1.8"
+    "org.openlaw"              %%% "openlaw-core"              % "0.1.9-SNAPSHOT"
   ),
   relativeSourceMaps := true,
   artifactPath in (Compile, fullOptJS) := crossTarget.value / "client.js",
