@@ -183,7 +183,7 @@ export class APIClient {
       return this.getCall('/contract/sign/status', {
           id: contractId,
           accessToken
-      });
+      }).then(result => result.data);
   }
 
   async stopContract(id: string) {
