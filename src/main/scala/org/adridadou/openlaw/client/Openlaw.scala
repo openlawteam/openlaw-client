@@ -8,7 +8,7 @@ import org.adridadou.openlaw.parser.template.variableTypes._
 
 import scala.scalajs.js
 import cats.implicits._
-import org.adridadou.openlaw.oracles.{OpenlawSignatureProof, UserId}
+import org.adridadou.openlaw.oracles.OpenlawSignatureProof
 import org.adridadou.openlaw.parser.contract.ParagraphEdits
 import org.adridadou.openlaw.values.{TemplateParameters, TemplateTitle}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
@@ -383,22 +383,15 @@ object Openlaw {
   def getIdentityEmail(identity:Identity):String = identity.email.email
 
   @JSExport
-  def getIdentityId(identity:Identity):String = identity.userId.id
-
-  @JSExport
   def createIdentityInternalValue(userId:js.UndefOr[String], email:String):String =
     IdentityType.internalFormat(createIdentity(userId, email))
 
   @JSExport
   def createIdentity(userId:js.UndefOr[String], email:String):Identity = {
     Identity(
-      id = userId.toOption.map(UserId.apply),
       email = Email(email)
     )
   }
-
-  @JSExport
-  def getIdentityId(identity:js.UndefOr[Identity]):js.UndefOr[String] = identity.map(_.userId.id)
 
   @JSExport
   def getIdentities(validationResult: ValidationResult, executionResult: TemplateExecutionResult):js.Array[VariableDefinition] = {
@@ -411,10 +404,10 @@ object Openlaw {
   }
 
   @JSExport
-  def isSignatory(userId:String, executionResult: TemplateExecutionResult):Boolean = {
+  def isSignatory(email:String, executionResult: TemplateExecutionResult):Boolean = {
     executionResult
       .getVariableValues[Identity](IdentityType)
-      .exists(_.id === Some(UserId(userId)))
+      .exists(_.email.email === email)
   }
 
   @JSExport
