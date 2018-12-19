@@ -166,7 +166,7 @@ export class APIClient {
     );
   }
   async prepareSignature(contractId:string, fullName:string, accessToken:?string):Promise<object> {
-      return this.getCall('/signForMetamask/contract/' + contractId,  {
+      return this.getCall('/prepareSignature/contract/' + contractId,  {
           fullName,
           accessToken
       });
