@@ -165,25 +165,42 @@ export class APIClient {
       }
     );
   }
-  async prepareSignature(contractId:string, fullName:string, accessToken:?string):Promise<object> {
-      return this.getCall('/prepareSignature/contract/' + contractId,  {
-          fullName,
-          accessToken
-      });
+  async prepareSignature(
+    contractId: string,
+    fullName: string,
+    accessToken: ?string
+  ): Promise<Object> {
+    return this.getCall('/prepareSignature/contract/' + contractId,
+      {
+        fullName,
+        accessToken
+      }
+    );
   }
 
-  async signContract(contractId:string, fullName:string, accessToken:?string):Promise<object> {
-      return this.getCall('/sign/contract/' + contractId, {
-          fullName,
-          accessToken
-      });
+  async signContract(
+    contractId: string,
+    fullName: string,
+    accessToken: ?string
+  ): Promise<Object> {
+    return this.getCall('/sign/contract/' + contractId,
+      {
+        fullName,
+        accessToken
+      }
+    );
   }
 
-  async loadContractStatus(contractId:string, accessToken:?string):Promise<object> {
-      return this.getCall('/contract/sign/status', {
-          id: contractId,
-          accessToken
-      }).then(result => result.data);
+  async loadContractStatus(
+    contractId: string,
+    accessToken: ?string
+  ): Promise<Object> {
+    return this.getCall('/contract/sign/status',
+      {
+        id: contractId,
+        accessToken
+      }
+    ).then(result => result.data);
   }
 
   async stopContract(id: string) {
