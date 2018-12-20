@@ -165,6 +165,43 @@ export class APIClient {
       }
     );
   }
+  async prepareSignature(
+    contractId: string,
+    fullName: string,
+    accessToken: ?string
+  ): Promise<Object> {
+    return this.getCall('/prepareSignature/contract/' + contractId,
+      {
+        fullName,
+        accessToken
+      }
+    );
+  }
+
+  async signContract(
+    contractId: string,
+    fullName: string,
+    accessToken: ?string
+  ): Promise<Object> {
+    return this.getCall('/sign/contract/' + contractId,
+      {
+        fullName,
+        accessToken
+      }
+    );
+  }
+
+  async loadContractStatus(
+    contractId: string,
+    accessToken: ?string
+  ): Promise<Object> {
+    return this.getCall('/contract/sign/status',
+      {
+        id: contractId,
+        accessToken
+      }
+    ).then(result => result.data);
+  }
 
   async stopContract(id: string) {
     return this.getCall('/contract/stop/' + id);
@@ -335,11 +372,6 @@ export class APIClient {
         txHash,
       }
     );
-  }
-
-  async prepareSignature(contractId: string) {
-    return this.getCall('/contract/prepareSignature/' + contractId)
-      .then(response => response.data);
   }
 
   async changeContractAlias(contractId: string, newName: string) {
