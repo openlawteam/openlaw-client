@@ -151,7 +151,7 @@ object Openlaw {
     )
   }
 
-  private def resultFromMissingInput(seq:Either[String, Seq[VariableName]]) = seq match {
+  private def resultFromMissingInput(seq:Either[String, Seq[VariableName]]): (Seq[VariableName], Seq[String]) = seq match {
     case Right(inputs) => (inputs, Seq())
     case Left(ex) => (Seq(), Seq(ex))
   }
@@ -165,8 +165,12 @@ object Openlaw {
 
   @JSExport
   def isChoiceType(variable:VariableDefinition, executionResult:TemplateExecutionResult):Boolean = variable.varType(executionResult) match {
-    case _:DefinedChoiceType => true
-    case _ => false
+    case _:DefinedChoiceType =>
+      true
+    case _ =>
+      variable.defaultValue
+        .map(getDefaultChoices(_, variable.varType(executionResult), executionResult))
+        .exists(_.nonEmpty)
   }
 
   @JSExport
@@ -177,8 +181,24 @@ object Openlaw {
 
   @JSExport
   def getChoiceValues(variable:VariableDefinition, executionResult: TemplateExecutionResult):js.Array[String] = variable.varType(executionResult) match {
-    case choice:DefinedChoiceType => choice.choices.values.flatMap(_.evaluate(executionResult)).map(VariableType.convert[String]).toJSArray
-    case _ => Seq().toJSArray
+    case choice:DefinedChoiceType =>
+      choice.choices.values.flatMap(_.evaluate(executionResult)).map(VariableType.convert[String]).toJSArray
+    case _ =>
+      variable.defaultValue.map(getDefaultChoices(_, variable.varType(executionResult), executionResult)).getOrElse(Seq()).toJSArray
+  }
+
+  private def getDefaultChoices(parameter:Parameter, variableType:VariableType, executionResult: TemplateExecutionResult):Seq[String] = {
+    parameter match {
+      case Parameters(parameterMap) =>
+        parameterMap.toMap.get("options").map({
+          case ListParameter(params) =>
+            params.flatMap(_.evaluate(executionResult)).map(variableType.internalFormat)
+          case OneValueParameter(expr) =>
+            expr.evaluate(executionResult).map(variableType.internalFormat).toSeq
+          case _ => Seq()
+        }).getOrElse(Seq())
+      case _ => Seq()
+    }
   }
 
   @JSExport
