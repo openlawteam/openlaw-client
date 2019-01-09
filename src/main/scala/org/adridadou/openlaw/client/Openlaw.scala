@@ -182,7 +182,7 @@ object Openlaw {
   @JSExport
   def getChoiceValues(variable:VariableDefinition, executionResult: TemplateExecutionResult):js.Array[String] = variable.varType(executionResult) match {
     case choice:DefinedChoiceType =>
-      choice.choices.values.flatMap(_.evaluate(executionResult)).map(VariableType.convert[String]).toJSArray
+      choice.choices.values.toJSArray
     case _ =>
       variable.defaultValue.map(getDefaultChoices(_, variable.varType(executionResult), executionResult)).getOrElse(Seq()).toJSArray
   }
