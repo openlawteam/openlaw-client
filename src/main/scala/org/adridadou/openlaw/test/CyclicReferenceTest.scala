@@ -1,6 +1,6 @@
 import org.scalatest.{FlatSpec, Matchers}
 
- import scala.collection.mutable
+import scala.collection.mutable
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
  /**

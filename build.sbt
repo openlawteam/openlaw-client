@@ -25,8 +25,11 @@ lazy val root = (project in file(".")).settings(
   name := "openlaw-core-client",
   scalaVersion := scalaV,
   libraryDependencies ++= Seq(
-    "org.openlaw"              %%% "openlaw-core"              % "0.1.12"
+    "org.openlaw"              %%% "openlaw-core"              % "0.1.12",
+    "org.scalatest"            %%% "scalatest"                 % "3.0.5",
+    "org.scala-js"              %% "scalajs-env-jsdom-nodejs"  % "1.0.0-M5"
   ),
+  jsEnv in Test := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
   relativeSourceMaps := true,
   artifactPath in (Compile, fullOptJS) := crossTarget.value / "client.js",
   npmBuild := {
