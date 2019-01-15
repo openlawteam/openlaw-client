@@ -12,6 +12,7 @@ import org.adridadou.openlaw.oracles.OpenlawSignatureProof
 import org.adridadou.openlaw.parser.contract.ParagraphEdits
 import org.adridadou.openlaw.values.{TemplateParameters, TemplateTitle}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
+import slogging.LazyLogging
 
 import scala.scalajs.js.Dictionary
 import scala.scalajs.js.JSConverters._
@@ -20,7 +21,7 @@ import scala.scalajs.js.JSConverters._
   * Created by davidroon on 05.05.17.
   */
 @JSExportTopLevel("Openlaw")
-object Openlaw {
+object Openlaw extends LazyLogging {
 
   val clock: Clock = Clock.systemDefaultZone()
   val engine = new OpenlawExecutionEngine
@@ -312,8 +313,14 @@ object Openlaw {
 
   private def getInitialParameter(variable:VariableDefinition, executionResult: TemplateExecutionResult):String =
     variable.defaultValue
-      .flatMap(variable.varType(executionResult).construct(_, executionResult))
-      .map(variable.varType(executionResult).internalFormat).getOrElse("")
+      .map(variable.varType(executionResult).construct(_, executionResult))
+      .map({
+        case Right(Some(value)) => variable.varType(executionResult).internalFormat(value)
+        case Right(None) => ""
+        case Left(ex) =>
+          logger.error(ex.getMessage, ex)
+          ""
+      }).getOrElse("")
 
 
   @JSExport
