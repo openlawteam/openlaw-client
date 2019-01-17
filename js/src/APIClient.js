@@ -144,6 +144,14 @@ export class APIClient {
       .then(response => response.data);
   }
 
+  async uploadFlow(params: Object): Promise<string> {
+    const headers = {
+      'Content-Type': 'text/plain;charset=UTF-8',
+    };
+    return this.postCall('/upload/flow', JSON.stringify(params), headers)
+      .then(response => response.data);
+  }
+
   async uploadContractToGoogle(id: string) {
     const headers = {
       Origin: 'location.hostname',
@@ -260,7 +268,7 @@ export class APIClient {
     draftId: string,
     pageSize: number,
     page: number,
-    accessToken:?string
+    accessToken: ?string
   ): Promise<Array<Template>> {
     return this.getCall('/drafts/version',
       {
@@ -288,14 +296,19 @@ export class APIClient {
   async getDraftVersion(
     draftId: string,
     version: number,
-    accessToken:?string
+    accessToken: ?string
   ): Promise<Object> {
     return this.getCall('/draft/raw/' + draftId + '/' + version, {accessToken})
       .then(response => response.data);
   }
 
-  async getContract(contractId: string, accessToken:?string): Promise<Object> {
+  async getContract(contractId: string, accessToken: ?string): Promise<Object> {
     return this.getCall('/contract/raw/' + contractId, {accessToken})
+      .then(response => response.data);
+  }
+
+  async getFlow(flowId: string): Promise<Object> {
+    return this.getCall('/flow/raw/' + flowId)
       .then(response => response.data);
   }
 
@@ -367,7 +380,7 @@ export class APIClient {
     );
   }
 
-  async sendTxHash(contractId: string, network: string, txHash: string, accessToken:?string) {
+  async sendTxHash(contractId: string, network: string, txHash: string, accessToken: ?string) {
     return this.getCall('/contract/signature/sendTxHash',
       {
         contractId,
