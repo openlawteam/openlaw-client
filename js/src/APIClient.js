@@ -268,7 +268,7 @@ export class APIClient {
     draftId: string,
     pageSize: number,
     page: number,
-    accessToken:?string
+    accessToken: ?string
   ): Promise<Array<Template>> {
     return this.getCall('/drafts/version',
       {
@@ -296,13 +296,13 @@ export class APIClient {
   async getDraftVersion(
     draftId: string,
     version: number,
-    accessToken:?string
+    accessToken: ?string
   ): Promise<Object> {
     return this.getCall('/draft/raw/' + draftId + '/' + version, {accessToken})
       .then(response => response.data);
   }
 
-  async getContract(contractId: string, accessToken:?string): Promise<Object> {
+  async getContract(contractId: string, accessToken: ?string): Promise<Object> {
     return this.getCall('/contract/raw/' + contractId, {accessToken})
       .then(response => response.data);
   }
@@ -380,7 +380,7 @@ export class APIClient {
     );
   }
 
-  async sendTxHash(contractId: string, network: string, txHash: string, accessToken:?string) {
+  async sendTxHash(contractId: string, network: string, txHash: string, accessToken: ?string) {
     return this.getCall('/contract/signature/sendTxHash',
       {
         contractId,
