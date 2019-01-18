@@ -178,6 +178,12 @@ export class APIClient {
     );
   }
 
+    async getAccessToken(
+        contractId: string
+    ): Promise<Object> {
+        return this.getCall('/contract/token/' + contractId);
+    }
+
   async signContract(
     contractId: string,
     fullName: string,
