@@ -5,12 +5,12 @@ import queryString from 'query-string';
 type AuthConfiguration = {
   username: string,
   password: string,
-}
+};
 
 type Configuration = {
   root: string,
   auth: ?AuthConfiguration,
-}
+};
 
 type Template = {
   id: string,
@@ -25,7 +25,6 @@ type Template = {
 };
 
 export class APIClient {
-
   conf: Configuration;
   jwt: string = '';
   loginPromise: Promise<Object> = Promise.resolve({});
@@ -45,12 +44,14 @@ export class APIClient {
   async postCall(url: string, params: any, headers: ?Object): Promise<Object> {
     return this.waitForLogin().then(() => {
       let callHeaders = Object.assign({}, headers);
-      callHeaders['Content-Type'] = callHeaders['Content-Type'] || 'application/x-www-form-urlencoded';
+      callHeaders['Content-Type'] =
+        callHeaders['Content-Type'] || 'application/x-www-form-urlencoded';
       if (this.jwt) {
         callHeaders['OPENLAW_JWT'] = this.jwt;
       }
 
-      const data = typeof params === 'string' ? params : queryString.stringify(params);
+      const data =
+        typeof params === 'string' ? params : queryString.stringify(params);
 
       const postCallDetails = {
         method: 'post',
@@ -70,18 +71,24 @@ export class APIClient {
         postCallDetails.responseType = 'blob';
       }
 
-      return axios(postCallDetails).then(result => {
-        if (result.headers['openlaw_jwt']) {
-          this.jwt = result.headers['openlaw_jwt'];
-        }
-        return result;
-      }).catch((error) => {
-        throw error;
-      });
+      return axios(postCallDetails)
+        .then(result => {
+          if (result.headers['openlaw_jwt']) {
+            this.jwt = result.headers['openlaw_jwt'];
+          }
+          return result;
+        })
+        .catch(error => {
+          throw error;
+        });
     });
   }
 
-  async getCall(url: string, params: ?Object, headers: ?Object): Promise<Object> {
+  async getCall(
+    url: string,
+    params: ?Object,
+    headers: ?Object,
+  ): Promise<Object> {
     return this.waitForLogin().then(() => {
       let callHeaders = Object.assign({}, headers);
       let paramsUrl = '';
@@ -101,19 +108,23 @@ export class APIClient {
         getCallDetails.auth = Object.assign({}, this.conf.auth);
       }
 
-      const urlRegex = new RegExp(/templates\/json|draft\/json|contract\/docx|contract\/pdf|contract\/json/);
+      const urlRegex = new RegExp(
+        /templates\/json|draft\/json|contract\/docx|contract\/pdf|contract\/json/,
+      );
       if (urlRegex.test(url)) {
         // $FlowFixMe - add new property for flow sealed object
         getCallDetails.responseType = 'blob';
       }
 
-      return axios.get(this.conf.root + url + paramsUrl, getCallDetails).then(result => {
-        if (result.headers['openlaw_jwt']) {
-          this.jwt = result.headers['openlaw_jwt'];
-        }
-        return result;
-      })
-        .catch((error) => {
+      return axios
+        .get(this.conf.root + url + paramsUrl, getCallDetails)
+        .then(result => {
+          if (result.headers['openlaw_jwt']) {
+            this.jwt = result.headers['openlaw_jwt'];
+          }
+          return result;
+        })
+        .catch(error => {
           if (error.data) {
             throw error.data;
           }
@@ -131,8 +142,11 @@ export class APIClient {
     const headers = {
       'Content-Type': 'text/plain;charset=UTF-8',
     };
-    return this.postCall('/upload/contract', JSON.stringify(params), headers)
-      .then(response => response.data);
+    return this.postCall(
+      '/upload/contract',
+      JSON.stringify(params),
+      headers,
+    ).then(response => response.data);
   }
 
   async uploadDraft(params: Object): Promise<string> {
@@ -140,16 +154,18 @@ export class APIClient {
       'Content-Type': 'text/plain;charset=UTF-8',
     };
 
-    return this.postCall('/upload/draft', JSON.stringify(params), headers)
-      .then(response => response.data);
+    return this.postCall('/upload/draft', JSON.stringify(params), headers).then(
+      response => response.data,
+    );
   }
 
   async uploadFlow(params: Object): Promise<string> {
     const headers = {
       'Content-Type': 'text/plain;charset=UTF-8',
     };
-    return this.postCall('/upload/flow', JSON.stringify(params), headers)
-      .then(response => response.data);
+    return this.postCall('/upload/flow', JSON.stringify(params), headers).then(
+      response => response.data,
+    );
   }
 
   async uploadContractToGoogle(id: string) {
@@ -166,49 +182,46 @@ export class APIClient {
     editEmails: Array<string>,
     id: string,
   ) {
-    return this.postCall('/send/draft',
-      {
-        readonlyEmails,
-        editEmails, id
-      }
-    );
+    return this.postCall('/send/draft', {
+      readonlyEmails,
+      editEmails,
+      id,
+    });
   }
   async prepareSignature(
     contractId: string,
     fullName: string,
-    accessToken: ?string
+    accessToken: ?string,
   ): Promise<Object> {
-    return this.getCall('/prepareSignature/contract/' + contractId,
-      {
-        fullName,
-        accessToken
-      }
-    );
+    return this.getCall('/prepareSignature/contract/' + contractId, {
+      fullName,
+      accessToken,
+    });
+  }
+
+  async getAccessToken(contractId: string): Promise<Object> {
+    return this.getCall('/contract/token/' + contractId);
   }
 
   async signContract(
     contractId: string,
     fullName: string,
-    accessToken: ?string
+    accessToken: ?string,
   ): Promise<Object> {
-    return this.getCall('/sign/contract/' + contractId,
-      {
-        fullName,
-        accessToken
-      }
-    );
+    return this.getCall('/sign/contract/' + contractId, {
+      fullName,
+      accessToken,
+    });
   }
 
   async loadContractStatus(
     contractId: string,
-    accessToken: ?string
+    accessToken: ?string,
   ): Promise<Object> {
-    return this.getCall('/contract/sign/status',
-      {
-        id: contractId,
-        accessToken
-      }
-    ).then(result => result.data);
+    return this.getCall('/contract/sign/status', {
+      id: contractId,
+      accessToken,
+    }).then(result => result.data);
   }
 
   async stopContract(id: string) {
@@ -224,13 +237,11 @@ export class APIClient {
     editEmails: Array<string>,
     id: string,
   ) {
-    return this.postCall('/send/contract',
-      {
-        readonlyEmails,
-        editEmails,
-        id
-      }
-    );
+    return this.postCall('/send/contract', {
+      readonlyEmails,
+      editEmails,
+      id,
+    });
   }
 
   async changeEthereumNetwork(name: string): Promise<Object> {
@@ -238,8 +249,7 @@ export class APIClient {
   }
 
   async getCurrentNetwork() {
-    return this.getCall('/network')
-      .then(response => response.data);
+    return this.getCall('/network').then(response => response.data);
   }
 
   async saveTemplate(title: string, value: string) {
@@ -255,76 +265,77 @@ export class APIClient {
     pageSize: number,
     page: number,
   ): Promise<Array<Template>> {
-    return this.getCall('/templates/version',
-      {
-        title,
-        pageSize,
-        page,
-      },
-    ).then(response => response.data);
+    return this.getCall('/templates/version', {
+      title,
+      pageSize,
+      page,
+    }).then(response => response.data);
   }
 
   async getDraftVersions(
     draftId: string,
     pageSize: number,
     page: number,
-    accessToken: ?string
+    accessToken: ?string,
   ): Promise<Array<Template>> {
-    return this.getCall('/drafts/version',
-      {
-        draftId,
-        pageSize,
-        page,
-        accessToken
-      },
-    ).then(response => response.data);
+    return this.getCall('/drafts/version', {
+      draftId,
+      pageSize,
+      page,
+      accessToken,
+    }).then(response => response.data);
   }
 
   async getTemplate(title: string): Promise<Object> {
-    return this.getCall('/template/raw/' + title)
-      .then(response => response.data);
+    return this.getCall('/template/raw/' + title).then(
+      response => response.data,
+    );
   }
 
-  async getTemplateVersion(
-    title: string,
-    version: string,
-  ): Promise<string> {
-    return this.getCall('/template/raw/' + title + '/' + version)
-      .then(response => response.data);
+  async getTemplateById(id: string): Promise<Object> {
+    return this.getCall('/template/id/raw/' + id).then(
+      response => response.data,
+    );
+  }
+
+  async getTemplateVersion(title: string, version: string): Promise<string> {
+    return this.getCall('/template/raw/' + title + '/' + version).then(
+      response => response.data,
+    );
   }
 
   async getDraftVersion(
     draftId: string,
     version: number,
-    accessToken: ?string
+    accessToken: ?string,
   ): Promise<Object> {
-    return this.getCall('/draft/raw/' + draftId + '/' + version, {accessToken})
-      .then(response => response.data);
+    return this.getCall('/draft/raw/' + draftId + '/' + version, {
+      accessToken,
+    }).then(response => response.data);
   }
 
   async getContract(contractId: string, accessToken: ?string): Promise<Object> {
-    return this.getCall('/contract/raw/' + contractId, {accessToken})
-      .then(response => response.data);
+    return this.getCall('/contract/raw/' + contractId, {accessToken}).then(
+      response => response.data,
+    );
   }
 
   async getFlow(flowId: string): Promise<Object> {
-    return this.getCall('/flow/raw/' + flowId)
-      .then(response => response.data);
+    return this.getCall('/flow/raw/' + flowId).then(response => response.data);
   }
 
   async searchUsers(keyword: string, page: number, pageSize: number) {
-    return this.getCall('/users/search',
-      {
-        keyword,
-        page,
-        pageSize
-      }
-    ).then(response => response.data);
+    return this.getCall('/users/search', {
+      keyword,
+      page,
+      pageSize,
+    }).then(response => response.data);
   }
 
   async deleteUser(userId: string) {
-    return this.getCall('/users/delete', {userId})
-      .then(response => response.data);
+    return this.getCall('/users/delete', {userId}).then(
+      response => response.data,
+    );
   }
 
   async toAdminUser(userId: string) {
@@ -340,13 +351,11 @@ export class APIClient {
   }
 
   async templateSearch(keyword: string, page: number, pageSize: number) {
-    return this.getCall('/templates/search',
-      {
-        keyword,
-        page,
-        pageSize,
-      },
-    ).then(response => response.data);
+    return this.getCall('/templates/search', {
+      keyword,
+      page,
+      pageSize,
+    }).then(response => response.data);
   }
 
   async searchDeletedTemplates(
@@ -354,13 +363,11 @@ export class APIClient {
     page: number,
     pageSize: number,
   ) {
-    return this.getCall('/templates/searchDeleted',
-      {
-        keyword,
-        page,
-        pageSize,
-      },
-    ).then(response => response.data);
+    return this.getCall('/templates/searchDeleted', {
+      keyword,
+      page,
+      pageSize,
+    }).then(response => response.data);
   }
 
   async deleteTemplate(name: string) {
@@ -372,41 +379,38 @@ export class APIClient {
   }
 
   async renameTemplate(oldName: string, newName: string) {
-    return this.getCall('/templates/rename',
-      {
-        name: oldName,
-        newName,
-      },
-    );
+    return this.getCall('/templates/rename', {
+      name: oldName,
+      newName,
+    });
   }
 
-  async sendTxHash(contractId: string, network: string, txHash: string, accessToken: ?string) {
-    return this.getCall('/contract/signature/sendTxHash',
-      {
-        contractId,
-        network,
-        txHash,
-        accessToken
-      }
-    );
+  async sendTxHash(
+    contractId: string,
+    network: string,
+    txHash: string,
+    accessToken: ?string,
+  ) {
+    return this.getCall('/contract/signature/sendTxHash', {
+      contractId,
+      network,
+      txHash,
+      accessToken,
+    });
   }
 
   async changeContractAlias(contractId: string, newName: string) {
-    return this.getCall('/contract/alias/' + contractId,
-      {
-        contractId,
-        newName,
-      },
-    );
+    return this.getCall('/contract/alias/' + contractId, {
+      contractId,
+      newName,
+    });
   }
 
   async changeDraftAlias(draftId: string, newName: string) {
-    return this.getCall('/draft/alias/' + draftId,
-      {
-        draftId,
-        newName,
-      },
-    );
+    return this.getCall('/draft/alias/' + draftId, {
+      draftId,
+      newName,
+    });
   }
 
   async searchContracts(
@@ -415,14 +419,12 @@ export class APIClient {
     pageSize: number,
     sortBy: string,
   ) {
-    return this.getCall('/contracts/search',
-      {
-        keyword,
-        page,
-        pageSize,
-        sortBy,
-      },
-    ).then(response => response.data);
+    return this.getCall('/contracts/search', {
+      keyword,
+      page,
+      pageSize,
+      sortBy,
+    }).then(response => response.data);
   }
 
   async searchDrafts(
@@ -431,204 +433,192 @@ export class APIClient {
     pageSize: number,
     sortBy: string,
   ) {
-    return this.getCall('/drafts/search',
-      {
-        keyword,
-        page,
-        pageSize,
-        sortBy,
-      },
-    ).then(response => response.data);
+    return this.getCall('/drafts/search', {
+      keyword,
+      page,
+      pageSize,
+      sortBy,
+    }).then(response => response.data);
   }
 
   async searchAddress(term: string) {
-    return this.getCall('/address/search', {term})
-      .then(response => response.data);
+    return this.getCall('/address/search', {term}).then(
+      response => response.data,
+    );
   }
 
   async getUserDetails(email: string) {
-    return this.getCall('/user/details', {email})
-      .then(response => response.data);
+    return this.getCall('/user/details', {email}).then(
+      response => response.data,
+    );
   }
 
   async getAddressDetails(placeId: string) {
-    return this.getCall('/address/details', {placeId})
-      .then(response => response.data);
+    return this.getCall('/address/details', {placeId}).then(
+      response => response.data,
+    );
   }
 
   async getStripeAccounts() {
-    return this.getCall('/user/getStripeAccounts')
-      .then(response => response.data);
+    return this.getCall('/user/getStripeAccounts').then(
+      response => response.data,
+    );
   }
 
-  async getCommunityActivity(
-    filter: string,
-    page: number,
-    pageSize: number,
-  ) {
-    return this.getCall('/recentActivity',
-      {
-        filter,
-        page,
-        pageSize,
-      },
-    ).then(response => response.data);
+  async getCommunityActivity(filter: string, page: number, pageSize: number) {
+    return this.getCall('/recentActivity', {
+      filter,
+      page,
+      pageSize,
+    }).then(response => response.data);
   }
 
   async downloadAsDocx(params: Object) {
     const data = JSON.stringify(params);
-    return this.postCall('/download/contract/docx', {data})
-      .then(response => {
-        const blob = new Blob([response.data], {type: response.data.type});
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = 'unknown';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-          if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
-        }
-        link.setAttribute('download', fileName);
-        // $FlowFixMe
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      });
+    return this.postCall('/download/contract/docx', {data}).then(response => {
+      const blob = new Blob([response.data], {type: response.data.type});
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'unknown';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+      }
+      link.setAttribute('download', fileName);
+      // $FlowFixMe
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    });
   }
 
   async downloadAsPdf(params: Object) {
     const data = JSON.stringify(params);
-    return this.postCall('/download/contract/pdf', {data})
-      .then(response => {
-        const blob = new Blob([response.data], {type: response.data.type});
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = 'unknown';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-          if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
-        }
-        link.setAttribute('download', fileName);
-        // $FlowFixMe
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      });
+    return this.postCall('/download/contract/pdf', {data}).then(response => {
+      const blob = new Blob([response.data], {type: response.data.type});
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'unknown';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+      }
+      link.setAttribute('download', fileName);
+      // $FlowFixMe
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    });
   }
 
   async downloadTemplateAsJson(title: string) {
-    return this.getCall('/templates/json/' + title)
-      .then(response => {
-        const blob = new Blob([response.data], {type: response.data.type});
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = 'unknown';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename=(.+)/);
-          if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
-        }
-        link.setAttribute('download', fileName);
-        // $FlowFixMe
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      });
+    return this.getCall('/templates/json/' + title).then(response => {
+      const blob = new Blob([response.data], {type: response.data.type});
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'unknown';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename=(.+)/);
+        if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+      }
+      link.setAttribute('download', fileName);
+      // $FlowFixMe
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    });
   }
 
   async downloadDraftAsJson(draftId: string) {
-    return this.getCall('/draft/json/' + draftId)
-      .then(response => {
-        const blob = new Blob([response.data], {type: response.data.type});
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = 'unknown';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename=(.+)/);
-          if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
-        }
-        link.setAttribute('download', fileName);
-        // $FlowFixMe
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      });
+    return this.getCall('/draft/json/' + draftId).then(response => {
+      const blob = new Blob([response.data], {type: response.data.type});
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'unknown';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename=(.+)/);
+        if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+      }
+      link.setAttribute('download', fileName);
+      // $FlowFixMe
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    });
   }
 
   async downloadContractAsDocx(contractId: string) {
-    return this.getCall('/contract/docx/' + contractId)
-      .then(response => {
-        const blob = new Blob([response.data], {type: response.data.type});
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = 'unknown';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-          if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
-        }
-        link.setAttribute('download', fileName);
-        // $FlowFixMe
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      });
+    return this.getCall('/contract/docx/' + contractId).then(response => {
+      const blob = new Blob([response.data], {type: response.data.type});
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'unknown';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+      }
+      link.setAttribute('download', fileName);
+      // $FlowFixMe
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    });
   }
 
   async downloadContractAsPdf(contractId: string) {
-    return this.getCall('/contract/pdf/' + contractId)
-      .then(response => {
-        const blob = new Blob([response.data], {type: response.data.type});
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = 'unknown';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-          if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
-        }
-        link.setAttribute('download', fileName);
-        // $FlowFixMe
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      });
+    return this.getCall('/contract/pdf/' + contractId).then(response => {
+      const blob = new Blob([response.data], {type: response.data.type});
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'unknown';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+      }
+      link.setAttribute('download', fileName);
+      // $FlowFixMe
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    });
   }
 
   async downloadContractAsJson(contractId: string) {
-    return this.getCall('/contract/json/' + contractId)
-      .then(response => {
-        const blob = new Blob([response.data], {type: response.data.type});
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        const contentDisposition = response.headers['content-disposition'];
-        let fileName = 'unknown';
-        if (contentDisposition) {
-          const fileNameMatch = contentDisposition.match(/filename=(.+)/);
-          if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
-        }
-        link.setAttribute('download', fileName);
-        // $FlowFixMe
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-      });
+    return this.getCall('/contract/json/' + contractId).then(response => {
+      const blob = new Blob([response.data], {type: response.data.type});
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      let fileName = 'unknown';
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename=(.+)/);
+        if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
+      }
+      link.setAttribute('download', fileName);
+      // $FlowFixMe
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    });
   }
-
 }
