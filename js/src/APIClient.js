@@ -159,6 +159,15 @@ export class APIClient {
     );
   }
 
+  async uploadFlow(params: Object): Promise<string> {
+    const headers = {
+      'Content-Type': 'text/plain;charset=UTF-8',
+    };
+    return this.postCall('/upload/flow', JSON.stringify(params), headers).then(
+      response => response.data,
+    );
+  }
+
   async uploadContractToGoogle(id: string) {
     const headers = {
       Origin: 'location.hostname',
@@ -309,6 +318,10 @@ export class APIClient {
     return this.getCall('/contract/raw/' + contractId, {accessToken}).then(
       response => response.data,
     );
+  }
+
+  async getFlow(flowId: string): Promise<Object> {
+    return this.getCall('/flow/raw/' + flowId).then(response => response.data);
   }
 
   async searchUsers(keyword: string, page: number, pageSize: number) {
