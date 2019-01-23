@@ -28,6 +28,8 @@ RUN curl -L -o sbt.deb http://dl.bintray.com/sbt/debian/sbt-1.2.6.deb && \
 RUN wget -O - https://nodejs.org/dist/v10.10.0/node-v10.10.0-linux-x64.tar.gz | tar xz && \
     mv node* node
 ENV PATH $PATH:/node/bin
+ARG NPM_TOKEN
+ENV NPM_TOKEN=${NPM_TOKEN}
 
 # Cache
 FROM tools as cache
