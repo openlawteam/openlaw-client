@@ -18,14 +18,58 @@ Check out the guide for getting started, the complete reference for using the Op
 $ npm install openlaw --save
 ```
 
+## Ways to Use
+
+```js
+/**
+ * ES2015: import for bundlers like webpack
+ */
+
+// import both modules
+import { APIClient, Openlaw } from "openlaw";
+// OR import only `Openlaw`
+import { Openlaw } from "openlaw";
+// OR import only `APIClient`
+import { APIClient } from "openlaw";
+
+
+/**
+ * CommonJS
+ */
+
+// require() for Node.js (or bundlers that support CommonJS-style modules)
+const { APIClient, Openlaw } = require('openlaw');
+
+
+/**
+ * Browser: available as a browser global: `openlaw`
+ */
+
+<script src="https://unpkg.com/openlaw/dist/umd/openlaw.js"></script>
+
+<script>
+  const Openlaw = openlaw.Openlaw;
+  const APIClient = openlaw.APIClient;
+</script>
+
+
+/**
+ * Browser, with ES Modules (https://caniuse.com/#search=Modules)
+ */
+
+// in your app
+import { Openlaw, APIClient } from './path/to/openlaw/index.esm.js';
+
+// then, in your HTML
+<script type="module" src="./app.js"></script>
+```
+
 ## Example Usage
 
 ### `APIClient`
 
 ```js
-const {APIClient} = require('openlaw');
-// ES2015 modules
-import {APIClient} from 'openlaw';
+import { APIClient } from "openlaw";
 
 // Include the root URL for the OpenLaw instance.
 apiClient = new APIClient('https://app.openlaw.io');
@@ -53,9 +97,7 @@ apiClient.getTemplate('Advisor Agreement').then(result => {
 ### `Openlaw`
 
 ```js
-const {Openlaw} = require('openlaw');
-// ES2015 modules
-import {Openlaw} from 'openlaw';
+import { Openlaw } from "openlaw";
 
 const compiledTemplate = Openlaw.compileTemplate(
   'This Advisor Agreement is entered into between [[Company Name]] ("Corporation") and [[Advisor Name]] ("Advisor") as of [[Effective Date: Date]] ("Effective Date"). Company and Advisor agree as follows: \n\n^**Services**. Advisor agrees to consult with and advise Company from time to time, at Company\'s request (the "Services").'
@@ -69,13 +111,6 @@ console.log(compiledTemplate);
   compiledTemplate: CompiledTemplate
 }
 */
-```
-
-### Import both exports from module
-
-```js
-// ES2015 modules
-import {APIClient, Openlaw} from 'openlaw';
 ```
 
 ## License
