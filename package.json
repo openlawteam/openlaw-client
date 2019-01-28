@@ -43,6 +43,7 @@
     "prepublishOnly": "run-s build_prod use:npmReadme",
     "postpublish": "npm run use:gitReadme",
     "release": "echo \"//registry.npmjs.org/:_authToken=$NPM_TOKEN\" >> ~/.npmrc && np patch",
+    "release_manual": "np patch",
     "use:npmReadme": "mv 'README.md' 'git.README.md' && mv 'npm.README.md' 'README.md'",
     "use:gitReadme": "mv 'README.md' 'npm.README.md' && mv 'git.README.md' 'README.md'"
   },
