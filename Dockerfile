@@ -1,9 +1,6 @@
 FROM ubuntu:18.04 as base
 
 ENV DEBIAN_FRONTEND=noninteractive TERM=xterm
-RUN echo "export > /etc/envvars" >> /root/.bashrc && \
-    echo "export PS1='\[\e[1;31m\]\u@\h:\w\\$\[\e[0m\] '" | tee -a /root/.bashrc /etc/skel/.bashrc && \
-    echo "alias tcurrent='tail /var/log/*/current -f'" | tee -a /root/.bashrc /etc/skel/.bashrc
 
 RUN apt-get update
 RUN apt-get install -y locales && locale-gen en_US.UTF-8 && dpkg-reconfigure locales
@@ -13,11 +10,10 @@ ENV LANGUAGE=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 RUN apt-get install -y --no-install-recommends vim less net-tools inetutils-ping wget curl git telnet nmap socat dnsutils netcat tree htop unzip sudo software-properties-common jq psmisc iproute2 python ssh rsync gettext-base
 
 # Java
-RUN apt-get --yes install default-jdk
+RUN apt-get --yes install default-jdk-headless
 
 FROM base as tools
 
-RUN apt-get update
 RUN apt-get install -y build-essential --fix-missing
 
 # SBT
@@ -33,6 +29,7 @@ ENV NPM_TOKEN=${NPM_TOKEN}
 
 # Cache
 FROM tools as cache
+
 COPY project /src/project
 RUN cd /src && \
     sbt update
@@ -40,21 +37,20 @@ COPY package*.json /src/
 RUN cd /src && \
     npm  --unsafe-perm install
 
+# build
 COPY . /src/
+WORKDIR /src
 
 # sbt build
 FROM cache as build_sbt
 
-RUN cd /src && \
-    sbt clean && \
-    sbt fullOptJS
+RUN sbt fullOptJS
 
 # npm build
 FROM build_sbt as build_npm
 
-RUN cd /src && \
-    npm  --unsafe-perm install && \
-    npm  --unsafe-perm run build_prod
+RUN npm  --unsafe-perm install
+RUN npm  --unsafe-perm run build_prod
 
 FROM build_npm as test
 
@@ -62,4 +58,9 @@ FROM build_npm as test
 # RUN cd /src && \
    # SBT_OPTS="-Xmx4G" sbt test
 
+FROM test as release
 
+ARG RELEASE
+ENV RELEASE=${RELEASE}
+
+RUN if [ "$RELEASE" = "true" ]; then npm run release; fi
