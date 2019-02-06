@@ -35,7 +35,7 @@ RUN cd /src && \
     sbt update
 COPY package*.json /src/
 RUN cd /src && \
-    npm  --unsafe-perm install
+    npm  --unsafe-perm ci
 
 # build
 COPY . /src/
