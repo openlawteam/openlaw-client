@@ -63,4 +63,6 @@ FROM test as release
 ARG RELEASE
 ENV RELEASE=${RELEASE}
 
+RUN git config --global user.email "jarrel.delottinville@gmail.com" && git config --global user.name "Jdville03"
+
 RUN if [ "$RELEASE" = "true" ]; then npm run release; fi
