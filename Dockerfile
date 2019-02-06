@@ -49,7 +49,7 @@ RUN sbt fullOptJS
 # npm build
 FROM build_sbt as build_npm
 
-RUN npm  --unsafe-perm install
+RUN npm  --unsafe-perm ci
 RUN npm  --unsafe-perm run build_prod
 
 FROM build_npm as test
