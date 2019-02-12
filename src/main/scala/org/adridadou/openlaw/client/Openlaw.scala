@@ -10,6 +10,7 @@ import scala.scalajs.js
 import cats.implicits._
 import org.adridadou.openlaw.oracles.OpenlawSignatureProof
 import org.adridadou.openlaw.parser.contract.ParagraphEdits
+import org.adridadou.openlaw.result.{Failure, Result, Success}
 import org.adridadou.openlaw.values.{TemplateParameters, TemplateTitle}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 import slogging.LazyLogging
@@ -152,9 +153,9 @@ object Openlaw extends LazyLogging {
     )
   }
 
-  private def resultFromMissingInput(seq:Either[String, Seq[VariableName]]): (Seq[VariableName], Seq[String]) = seq match {
-    case Right(inputs) => (inputs, Seq())
-    case Left(ex) => (Seq(), Seq(ex))
+  private def resultFromMissingInput(seq: Result[Seq[VariableName]]): (Seq[VariableName], Seq[String]) = seq match {
+    case Success(inputs) => (inputs, Seq())
+    case Failure(_, message) => (Seq(), Seq(message))
   }
 
   @JSExport
@@ -267,8 +268,8 @@ object Openlaw extends LazyLogging {
   @JSExport
   def missingAllIdentities(result:ValidationResult):Boolean = result.identities.nonEmpty && result.missingIdentities.length === result.identities.length
 
-  private def handleExecutionResult(executionResult:Either[String, TemplateExecutionResult]):js.Dictionary[Any] = executionResult match {
-    case Right(result) =>
+  private def handleExecutionResult(executionResult:Result[TemplateExecutionResult]):js.Dictionary[Any] = executionResult match {
+    case Success(result) =>
       result.state match {
         case ExecutionFinished =>
           js.Dictionary(
@@ -290,11 +291,11 @@ object Openlaw extends LazyLogging {
             "missingTemplate" -> false,
             "errorMessage" -> s"invalid end state ${result.state}")
       }
-    case Left(ex) =>
+    case Failure(_, message) =>
       js.Dictionary(
         "executionResult" -> js.undefined,
         "isError" -> true,
-        "errorMessage" -> ex)
+        "errorMessage" -> message)
   }
 
   @JSExport
