@@ -35,7 +35,7 @@ RUN cd /src && \
     sbt update
 COPY package*.json /src/
 RUN cd /src && \
-    npm  --unsafe-perm install
+    npm  --unsafe-perm ci
 
 # build
 COPY . /src/
@@ -49,7 +49,7 @@ RUN sbt fullOptJS
 # npm build
 FROM build_sbt as build_npm
 
-RUN npm  --unsafe-perm install
+RUN npm  --unsafe-perm ci
 RUN npm  --unsafe-perm run build_prod
 
 FROM build_npm as test
@@ -62,5 +62,8 @@ FROM test as release
 
 ARG RELEASE
 ENV RELEASE=${RELEASE}
+
+RUN git config --global user.email "jarrel.delottinville@gmail.com" && git config --global user.name "Jdville03"
+RUN git branch --set-upstream-to=origin/master master
 
 RUN if [ "$RELEASE" = "true" ]; then npm run release; fi
