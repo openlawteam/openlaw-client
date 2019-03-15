@@ -15,8 +15,12 @@ import org.adridadou.openlaw.values.{TemplateParameters, TemplateTitle}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 import slogging.LazyLogging
 
+import io.circe.parser.decode
+
 import scala.scalajs.js.Dictionary
 import scala.scalajs.js.JSConverters._
+
+import SerializableTemplateExecutionResult._
 
 /**
   * Created by davidroon on 05.05.17.
@@ -26,7 +30,7 @@ object Openlaw extends LazyLogging {
 
   val clock: Clock = Clock.systemDefaultZone()
   val engine = new OpenlawExecutionEngine
-  val markdown = new OpenlawTemplateLanguageParserService(Clock.systemUTC())
+  val markdown = new OpenlawTemplateLanguageParserService(clock)
 
   @JSExport
   def compileTemplate(text:String) : js.Dictionary[Any] = markdown.compileTemplate(text, clock) match {
@@ -62,7 +66,7 @@ object Openlaw extends LazyLogging {
   }
 
   @JSExport
-  def resumeExecution(executionResult:TemplateExecutionResult, jsTemplates:js.Dictionary[CompiledTemplate]) : js.Dictionary[Any] = {
+  def resumeExecution(executionResult:OpenlawExecutionState, jsTemplates:js.Dictionary[CompiledTemplate]) : js.Dictionary[Any] = {
     val templates = jsTemplates.map({ case (name, template) => TemplateSourceIdentifier(TemplateTitle(name)) -> template}).toMap
     handleExecutionResult(engine.resumeExecution(executionResult, templates))
   }
@@ -87,76 +91,7 @@ object Openlaw extends LazyLogging {
   def validationErrors(result:ValidationResult):js.Array[String] = result.validationExpressionErrors.toJSArray
 
   @JSExport
-  def validateContract(executionResult:TemplateExecutionResult):ValidationResult = {
-    val variables = executionResult.getAllExecutedVariables
-      .flatMap({case (result, name) => result.getVariable(name).map(variable => (result, variable))})
-      .filter({case (_, variable) => variable.varType(executionResult) match {
-        case _:NoShowInForm => false
-        case _ => true
-      }})
-
-    val identities = variables.filter({ case (result, variable) =>
-      variable.varType(result) match {
-        case IdentityType => true
-        case collectionType:CollectionType if collectionType.typeParameter === IdentityType => true
-        case structureType:DefinedStructureType if structureType.structure.typeDefinition.values.exists(_ === IdentityType) => true
-        case _ => false
-      }
-    }).map({case (_, variable) => variable})
-
-    val missingIdentitiesResult = variables.map({ case (result, variable) =>
-      variable.varType(result) match {
-        case IdentityType =>
-          resultFromMissingInput(variable.missingInput(result))
-        case collectionType:CollectionType if collectionType.typeParameter === IdentityType =>
-          result.getVariableValue[CollectionValue](variable.name) match {
-            case Some(value) if value.size =!= value.values.size =>
-              (Seq(variable.name), Seq())
-            case Some(_) =>
-              (Seq(), Seq())
-            case None =>
-              (Seq(variable.name), Seq())
-          }
-
-        case structureType:DefinedStructureType if structureType.structure.typeDefinition.values.exists(_ === IdentityType) =>
-          val values = result.getVariableValue[Map[VariableName, Any]](variable.name)
-          val identityProperties = structureType.structure.typeDefinition
-            .filter({case (_,propertyType) => propertyType === IdentityType})
-            .map({case (propertyName,_) => propertyName}).toSeq
-
-          if(identityProperties.forall(values.getOrElse(Map()).contains)) {
-            (Seq(), Seq())
-          } else {
-            (Seq(variable.name), Seq())
-          }
-
-        case _ =>
-          (Seq(), Seq())
-      }
-    })
-
-    val identitiesErrors = missingIdentitiesResult.flatMap({
-      case (_, errors) =>  errors
-    })
-
-    val missingIdentities = missingIdentitiesResult.flatMap({
-      case (values, _) =>  values
-    })
-
-    val (missingInputs, additionalErrors) = resultFromMissingInput(executionResult.allMissingInput)
-
-    ValidationResult(
-      identities = identities,
-      missingInputs = missingInputs,
-      missingIdentities = missingIdentities,
-      validationExpressionErrors = executionResult.validate() ++ additionalErrors ++ identitiesErrors
-    )
-  }
-
-  private def resultFromMissingInput(seq: Result[Seq[VariableName]]): (Seq[VariableName], Seq[String]) = seq match {
-    case Success(inputs) => (inputs, Seq())
-    case Failure(_, message) => (Seq(), Seq(message))
-  }
+  def validateContract(executionResult:OpenlawExecutionState):ValidationResult = executionResult.validateExecution
 
   @JSExport
   def showInForm(variable:VariableDefinition, executionResult:TemplateExecutionResult):Boolean =
@@ -189,18 +124,16 @@ object Openlaw extends LazyLogging {
       variable.defaultValue.map(getDefaultChoices(_, variable.varType(executionResult), executionResult)).getOrElse(Seq()).toJSArray
   }
 
-  private def getDefaultChoices(parameter:Parameter, variableType:VariableType, executionResult: TemplateExecutionResult):Seq[String] = {
-    parameter match {
-      case Parameters(parameterMap) =>
-        parameterMap.toMap.get("options").map({
-          case ListParameter(params) =>
-            params.flatMap(_.evaluate(executionResult)).map(variableType.internalFormat)
-          case OneValueParameter(expr) =>
-            expr.evaluate(executionResult).map(variableType.internalFormat).toSeq
-          case _ => Seq()
-        }).getOrElse(Seq())
-      case _ => Seq()
-    }
+  private def getDefaultChoices(parameter:Parameter, variableType:VariableType, executionResult: TemplateExecutionResult):Seq[String] = parameter match {
+    case Parameters(parameterMap) =>
+      parameterMap.toMap.get("options").map({
+        case ListParameter(params) =>
+          params.flatMap(_.evaluate(executionResult)).map(variableType.internalFormat)
+        case OneValueParameter(expr) =>
+          expr.evaluate(executionResult).map(variableType.internalFormat).toSeq
+        case _ => Seq()
+      }).getOrElse(Seq())
+    case _ => Seq()
   }
 
   @JSExport
@@ -268,7 +201,13 @@ object Openlaw extends LazyLogging {
   @JSExport
   def missingAllIdentities(result:ValidationResult):Boolean = result.identities.nonEmpty && result.missingIdentities.length === result.identities.length
 
-  private def handleExecutionResult(executionResult:Result[TemplateExecutionResult]):js.Dictionary[Any] = executionResult match {
+  @JSExport
+  def deserializeExecutionResult(resultJson:String):SerializableTemplateExecutionResult = decode[SerializableTemplateExecutionResult](resultJson) match {
+    case Right(value) => value
+    case Left(ex) => throw new RuntimeException(ex.getMessage)
+  }
+
+  private def handleExecutionResult(executionResult:Result[OpenlawExecutionState]):js.Dictionary[Any] = executionResult match {
     case Success(result) =>
       result.state match {
         case ExecutionFinished =>
@@ -319,7 +258,7 @@ object Openlaw extends LazyLogging {
         case Right(Some(value)) => variable.varType(executionResult).internalFormat(value)
         case Right(None) => ""
         case Left(ex) =>
-          logger.error(ex.getMessage, ex)
+          logger.error(ex.message, ex)
           ""
       }).getOrElse("")
 
@@ -432,19 +371,15 @@ object Openlaw extends LazyLogging {
   }
 
   @JSExport
-  def isSignatory(email:String, executionResult: TemplateExecutionResult):Boolean = {
-    executionResult
+  def isSignatory(email:String, executionResult: TemplateExecutionResult):Boolean = executionResult
       .getVariableValues[Identity](IdentityType)
       .exists(_.email.email === email)
-  }
 
   @JSExport
-  def getSections(document:TemplateExecutionResult):js.Array[String] =
-    document.variableSectionList.toJSArray
+  def getSections(document:TemplateExecutionResult):js.Array[String] = document.variableSectionList.toJSArray
 
   @JSExport
-  def getVariableSections(document:TemplateExecutionResult):js.Dictionary[js.Array[String]] =
-    document.sections
+  def getVariableSections(document:TemplateExecutionResult):js.Dictionary[js.Array[String]] = document.sections
       .map({case (key,variables) => key -> variables.map(_.name).toJSArray}).toJSDictionary
 
   @JSExport
@@ -457,12 +392,11 @@ object Openlaw extends LazyLogging {
   def isHidden(variableDefinition: VariableDefinition):Boolean = variableDefinition.isHidden
 
   @JSExport
-  def getCollectionSize(variable:VariableDefinition, value:String, executionResult: TemplateExecutionResult):Int = {
+  def getCollectionSize(variable:VariableDefinition, value:String, executionResult: TemplateExecutionResult):Int =
     getCollection(variable, executionResult, value).size
-  }
 
   @JSExport
-  def createVariableFromCollection(variable:VariableDefinition, index:Int, executionResult: TemplateExecutionResult):VariableDefinition = {
+  def createVariableFromCollection(variable:VariableDefinition, index:Int, executionResult: TemplateExecutionResult):VariableDefinition =
     variable.varType(executionResult) match {
       case collectionType:CollectionType =>
         VariableDefinition(VariableName(variable.name.name + "_" + index), variableTypeDefinition = Some(VariableTypeDefinition(collectionType.typeParameter.name)), description = Some(getDescription(variable)))
@@ -470,7 +404,6 @@ object Openlaw extends LazyLogging {
       case _ =>
         throw new RuntimeException(s"add element to collection only works for a variable of type Collection, not '${variable.varType(executionResult).name}'")
     }
-  }
 
   @JSExport
   def addElementToCollection(variable:VariableDefinition, value:String, executionResult: TemplateExecutionResult):String = {
@@ -555,9 +488,3 @@ object Openlaw extends LazyLogging {
     }
   }
 }
-
-case class ValidationResult(
-                             identities:Seq[VariableDefinition],
-                             missingInputs:Seq[VariableName],
-                             missingIdentities:Seq[VariableName],
-                             validationExpressionErrors:Seq[String])
