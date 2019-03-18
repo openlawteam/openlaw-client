@@ -87,71 +87,8 @@ object Openlaw extends LazyLogging {
   def validationErrors(result:ValidationResult):js.Array[String] = result.validationExpressionErrors.toJSArray
 
   @JSExport
-  def validateContract(executionResult:TemplateExecutionResult):ValidationResult = {
-    val variables = executionResult.getAllExecutedVariables
-      .flatMap({case (result, name) => result.getVariable(name).map(variable => (result, variable))})
-      .filter({case (_, variable) => variable.varType(executionResult) match {
-        case _:NoShowInForm => false
-        case _ => true
-      }})
-
-    val identities = variables.filter({ case (result, variable) =>
-      variable.varType(result) match {
-        case IdentityType => true
-        case collectionType:CollectionType if collectionType.typeParameter === IdentityType => true
-        case structureType:DefinedStructureType if structureType.structure.typeDefinition.values.exists(_ === IdentityType) => true
-        case _ => false
-      }
-    }).map({case (_, variable) => variable})
-
-    val missingIdentitiesResult = variables.map({ case (result, variable) =>
-      variable.varType(result) match {
-        case IdentityType =>
-          resultFromMissingInput(variable.missingInput(result))
-        case collectionType:CollectionType if collectionType.typeParameter === IdentityType =>
-          result.getVariableValue[CollectionValue](variable.name) match {
-            case Some(value) if value.size =!= value.values.size =>
-              (Seq(variable.name), Seq())
-            case Some(_) =>
-              (Seq(), Seq())
-            case None =>
-              (Seq(variable.name), Seq())
-          }
-
-        case structureType:DefinedStructureType if structureType.structure.typeDefinition.values.exists(_ === IdentityType) =>
-          val values = result.getVariableValue[Map[VariableName, Any]](variable.name)
-          val identityProperties = structureType.structure.typeDefinition
-            .filter({case (_,propertyType) => propertyType === IdentityType})
-            .map({case (propertyName,_) => propertyName}).toSeq
-
-          if(identityProperties.forall(values.getOrElse(Map()).contains)) {
-            (Seq(), Seq())
-          } else {
-            (Seq(variable.name), Seq())
-          }
-
-        case _ =>
-          (Seq(), Seq())
-      }
-    })
-
-    val identitiesErrors = missingIdentitiesResult.flatMap({
-      case (_, errors) =>  errors
-    })
-
-    val missingIdentities = missingIdentitiesResult.flatMap({
-      case (values, _) =>  values
-    })
-
-    val (missingInputs, additionalErrors) = resultFromMissingInput(executionResult.allMissingInput)
-
-    ValidationResult(
-      identities = identities,
-      missingInputs = missingInputs,
-      missingIdentities = missingIdentities,
-      validationExpressionErrors = executionResult.validate() ++ additionalErrors ++ identitiesErrors
-    )
-  }
+  def validateContract(executionResult:TemplateExecutionResult):ValidationResult =
+    executionResult.validateExecution
 
   private def resultFromMissingInput(seq: Result[Seq[VariableName]]): (Seq[VariableName], Seq[String]) = seq match {
     case Success(inputs) => (inputs, Seq())
@@ -316,10 +253,10 @@ object Openlaw extends LazyLogging {
     variable.defaultValue
       .map(variable.varType(executionResult).construct(_, executionResult))
       .map({
-        case Right(Some(value)) => variable.varType(executionResult).internalFormat(value)
-        case Right(None) => ""
-        case Left(ex) =>
-          logger.error(ex.getMessage, ex)
+        case Success(Some(value)) => variable.varType(executionResult).internalFormat(value)
+        case Success(None) => ""
+        case Failure(ex, message) =>
+          logger.error(message, ex)
           ""
       }).getOrElse("")
 
@@ -555,9 +492,3 @@ object Openlaw extends LazyLogging {
     }
   }
 }
-
-case class ValidationResult(
-                             identities:Seq[VariableDefinition],
-                             missingInputs:Seq[VariableName],
-                             missingIdentities:Seq[VariableName],
-                             validationExpressionErrors:Seq[String])
