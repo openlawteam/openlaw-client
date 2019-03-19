@@ -15,12 +15,11 @@ import org.adridadou.openlaw.values.{TemplateParameters, TemplateTitle}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 import slogging.LazyLogging
 
-import io.circe.parser.decode
+import io.circe.parser._
+import io.circe.syntax._
 
 import scala.scalajs.js.Dictionary
 import scala.scalajs.js.JSConverters._
-
-import SerializableTemplateExecutionResult._
 
 /**
   * Created by davidroon on 05.05.17.
@@ -91,7 +90,8 @@ object Openlaw extends LazyLogging {
   def validationErrors(result:ValidationResult):js.Array[String] = result.validationExpressionErrors.toJSArray
 
   @JSExport
-  def validateContract(executionResult:OpenlawExecutionState):ValidationResult = executionResult.validateExecution
+  def validateContract(executionResult:OpenlawExecutionState):ValidationResult =
+    executionResult.validateExecution
 
   @JSExport
   def showInForm(variable:VariableDefinition, executionResult:TemplateExecutionResult):Boolean =
@@ -207,6 +207,9 @@ object Openlaw extends LazyLogging {
     case Left(ex) => throw new RuntimeException(ex.getMessage)
   }
 
+  @JSExport
+  def serializeExecutionResult(executionResult:SerializableTemplateExecutionResult):String = executionResult.asJson.noSpaces
+
   private def handleExecutionResult(executionResult:Result[OpenlawExecutionState]):js.Dictionary[Any] = executionResult match {
     case Success(result) =>
       result.state match {
@@ -255,10 +258,10 @@ object Openlaw extends LazyLogging {
     variable.defaultValue
       .map(variable.varType(executionResult).construct(_, executionResult))
       .map({
-        case Right(Some(value)) => variable.varType(executionResult).internalFormat(value)
-        case Right(None) => ""
-        case Left(ex) =>
-          logger.error(ex.message, ex)
+        case Success(Some(value)) => variable.varType(executionResult).internalFormat(value)
+        case Success(None) => ""
+        case Failure(ex, message) =>
+          logger.error(message, ex)
           ""
       }).getOrElse("")
 
