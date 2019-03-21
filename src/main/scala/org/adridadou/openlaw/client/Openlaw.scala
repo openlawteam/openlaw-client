@@ -341,7 +341,7 @@ object Openlaw extends LazyLogging {
     executionResult.agreements.map(agreement => {
       Dictionary[Any](
         "agreement" -> agreement,
-        "executionResult" -> agreement.executionResult,
+        "executionResult" -> executionResult.findExecutionResult(agreement.executionResultId).getOrElse(executionResult),
         "mainTemplate" -> agreement.mainTemplate,
         "showTitle" -> agreement.header.shouldShowTitle,
         "name" -> agreement.name,
