@@ -1,0 +1,10 @@
+.git
+.github
+node_modules
+Makefile
+ci
+# TODO: this can be removed once moving to new flow,
+# but currently old Dockerfile gets invalidated improperly without it,
+# so lets give it a little help while testing
+Dockerfile-new
+tmp
