@@ -208,7 +208,7 @@ object Openlaw extends LazyLogging {
   }
 
   @JSExport
-  def serializeExecutionResult(executionResult:SerializableTemplateExecutionResult):String = executionResult.asJson.noSpaces
+  def serializeExecutionResult(executionResult:OpenlawExecutionState):String = executionResult.toSerializable.asJson.noSpaces
 
   private def handleExecutionResult(executionResult:Result[OpenlawExecutionState]):js.Dictionary[Any] = executionResult match {
     case Success(result) =>
