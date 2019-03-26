@@ -203,6 +203,18 @@ export class APIClient {
     return this.getCall('/contract/token/' + contractId);
   }
 
+  async getFlowAccessToken(flowId: string): Promise<string> {
+    return this.getCall('/flow/token/' + flowId).then(
+      response => response.data,
+    );
+  }
+
+  async generateFlowAccessToken(flowId: string): Promise<string> {
+    return this.postCall('/flow/updateToken/' + flowId).then(
+      response => response.data,
+    );
+  }
+
   async signContract(
     contractId: string,
     fullName: string,
