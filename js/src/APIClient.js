@@ -321,7 +321,9 @@ export class APIClient {
   }
 
   async getFlow(flowId: string, accessToken: ?string): Promise<Object> {
-    return this.getCall('/flow/raw/' + flowId, {accessToken}).then(response => response.data);
+    return this.getCall('/flow/raw/' + flowId, {accessToken}).then(
+      response => response.data,
+    );
   }
 
   async searchUsers(keyword: string, page: number, pageSize: number) {
