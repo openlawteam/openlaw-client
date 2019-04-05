@@ -25,7 +25,7 @@ lazy val root = (project in file(".")).settings(
   name := "openlaw-core-client",
   scalaVersion := scalaV,
   libraryDependencies ++= Seq(
-    "org.openlaw"              %%% "openlaw-core"              % "0.1.23-SNAPSHOT"
+    "org.openlaw"              %%% "openlaw-core"              % "0.1.26-SNAPSHOT"
   ),
   relativeSourceMaps := true,
   artifactPath in (Compile, fullOptJS) := crossTarget.value / "client.js",

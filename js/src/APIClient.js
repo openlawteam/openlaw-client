@@ -203,6 +203,24 @@ export class APIClient {
     return this.getCall('/contract/token/' + contractId);
   }
 
+  async getFlowAccessToken(flowId: string): Promise<string> {
+    return this.getCall('/flow/token/' + flowId).then(
+      response => response.data,
+    );
+  }
+
+  async generateFlowAccessToken(flowId: string): Promise<string> {
+    return this.postCall('/flow/updateToken/' + flowId).then(
+      response => response.data,
+    );
+  }
+
+  async disableFlowAccessToken(flowId: string): Promise<string> {
+    return this.postCall('/flow/disableToken/' + flowId).then(
+      response => response.data,
+    );
+  }
+
   async signContract(
     contractId: string,
     fullName: string,
@@ -320,8 +338,10 @@ export class APIClient {
     );
   }
 
-  async getFlow(flowId: string): Promise<Object> {
-    return this.getCall('/flow/raw/' + flowId).then(response => response.data);
+  async getFlow(flowId: string, accessToken: ?string): Promise<Object> {
+    return this.getCall('/flow/raw/' + flowId, {accessToken}).then(
+      response => response.data,
+    );
   }
 
   async searchUsers(keyword: string, page: number, pageSize: number) {

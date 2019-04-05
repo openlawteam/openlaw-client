@@ -219,7 +219,7 @@ object Openlaw extends LazyLogging {
             "isError" -> false,
             "missingTemplate" -> false,
             "errorMessage" -> "")
-        case ExecutionWaitForTemplate(_, definition) =>
+        case ExecutionWaitForTemplate(_, definition, _) =>
           js.Dictionary(
             "executionResult" -> result,
             "isError" -> false,
@@ -247,7 +247,7 @@ object Openlaw extends LazyLogging {
         case (_, variable) => variable.varType(executionResult) match {
           case _:NoShowInForm => false
           case _ => true
-        }}).filter({case (_, variable) => variable.defaultValue.exists(_ => true)})
+        }}).filter({case (_, variable) => variable.defaultValue.isDefined})
       .map({ case (result, variable) => js.Dictionary(
         "name" -> variable.name.name,
         "value" -> getInitialParameter(variable, result))
