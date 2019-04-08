@@ -16,6 +16,6 @@ addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "0.2.6")
 
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 
-addSbtPlugin("org.wartremover" % "sbt-wartremover" % "2.3.7")
+addSbtPlugin("org.wartremover" % "sbt-wartremover" % "2.4.1")
 
 addSbtPlugin("com.thoughtworks.sbt-scala-js-map" % "sbt-scala-js-map" % "3.0.0")
