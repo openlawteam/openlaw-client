@@ -419,6 +419,14 @@ export class APIClient {
     });
   }
 
+  async sendTxHashForCall(contractId: string, network: string, txHash: string) {
+    return this.getCall('/contract/call/sendTxHash', {
+      contractId,
+      network,
+      txHash,
+    });
+  }
+
   async changeContractAlias(contractId: string, newName: string) {
     return this.getCall('/contract/alias/' + contractId, {
       contractId,
