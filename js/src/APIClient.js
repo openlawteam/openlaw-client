@@ -419,9 +419,17 @@ export class APIClient {
     });
   }
 
-  async sendTxHashForCall(contractId: string, network: string, txHash: string) {
+  async sendTxHashForCall(
+    contractId: string,
+    userAccount: string,
+    smartContractAddress: string,
+    network: string,
+    txHash: string,
+  ) {
     return this.getCall('/contract/call/sendTxHash', {
       contractId,
+      userAccount,
+      smartContractAddress,
       network,
       txHash,
     });
