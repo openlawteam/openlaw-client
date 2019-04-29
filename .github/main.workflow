@@ -40,7 +40,7 @@ action "Publish" {
   runs = "./scripts/release.sh"
   secrets = ["NPM_TOKEN"]
   env = {
-    LIVE = "0"
+    LIVE = "1"
   }
   needs = ["Caching Build"]
 }
