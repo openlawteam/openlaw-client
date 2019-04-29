@@ -1,11 +1,6 @@
-workflow "Build and lint on push" {
+workflow "Build on push" {
   on = "push"
-  resolves = [
-    "Caching Build",
-    "LintersOK",
-    "Prettier Lint",
-    "ESLint",
-  ]
+  resolves = ["Caching Build"]
 }
 
 action "Docker Registry Login" {
@@ -22,9 +17,15 @@ action "Caching Build" {
   }
 }
 
+workflow "Linters on push" {
+  on = "push"
+  resolves = ["LintersOK"]
+}
+
 action "Shellcheck Lint" {
   uses = "actions/bin/shellcheck@master"
   args = ["scripts/*.sh", "ci/*.sh"]
+  needs = ["NPM CI"]
 }
 
 action "NPM CI" {
@@ -34,14 +35,14 @@ action "NPM CI" {
 
 action "Prettier Lint" {
   uses = "actions/npm@master"
-  needs = ["NPM CI"]
   args = ["run", "style"]
+  needs = ["NPM CI"]
 }
 
 action "ESLint" {
   uses = "actions/npm@master"
-  needs = ["NPM CI"]
   args = ["run", "lint"]
+  needs = ["NPM CI"]
 }
 
 action "LintersOK" {
@@ -51,7 +52,7 @@ action "LintersOK" {
     "Prettier Lint",
     "ESLint",
   ]
-  args = ["echo linters OK"]
+  args = ["echo all linters OK"]
 }
 
 workflow "Publish to NPM on release" {
