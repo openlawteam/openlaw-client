@@ -10,12 +10,12 @@ NPM_REGISTRY="registry.npmjs.org"
 #
 # In CI environments where we can mount secrets as files, it may be preferable
 # to store and mount the .npmrc directly instead of using env variables.
-if [ ! -f ../.npmrc ]; then
+if [ ! -f .npmrc ]; then
     if [ -z "$NPM_TOKEN" ]; then
         echo "No local .npmrc or NPM_TOKEN environment variable! Exiting..."
         exit 1
     fi
-    echo "//${NPM_REGISTRY}/:_authToken=${NPM_TOKEN}" >> ../.npmrc
+    echo "//${NPM_REGISTRY}/:_authToken=${NPM_TOKEN}" >> .npmrc
 fi
 
 # Publish to NPM. Will do a dry-run by default unless overridden via LIVE=1.
