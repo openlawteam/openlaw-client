@@ -54,7 +54,6 @@ docker pull "$PACKAGER_BRANCH_TAG" || true
 ##############################################################################
 
 docker build ${BUILD_PARAMS:+"$BUILD_PARAMS"} \
-    -f Dockerfile-new \
     --target=builder \
     --cache-from="$BUILDER_MASTER_TAG" \
     --cache-from="$BUILDER_BRANCH_TAG" \
@@ -69,7 +68,6 @@ fi
 ##############################################################################
 
 docker build ${BUILD_PARAMS:+"$BUILD_PARAMS"} \
-    -f Dockerfile-new \
     --cache-from="$BUILDER_MASTER_TAG" \
     --cache-from="$BUILDER_BRANCH_TAG" \
     --cache-from="$PACKAGER_MASTER_TAG" \
