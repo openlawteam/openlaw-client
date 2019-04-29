@@ -35,6 +35,12 @@ workflow "Publish to NPM on release" {
   resolves = ["Publish", "Debug Event"]
 }
 
+# filter for "published" action
+action "Published action only" {
+  uses = "actions/bin/filter@master"
+  args = "action 'published'"
+}
+
 action "Publish" {
   uses = "docker://openlaw/client:packager"
   runs = "./scripts/release.sh"
@@ -42,7 +48,7 @@ action "Publish" {
   env = {
     LIVE = "1"
   }
-  needs = ["Caching Build"]
+  needs = ["Published action only", "Caching Build"]
 }
 
 action "Debug Event" {
