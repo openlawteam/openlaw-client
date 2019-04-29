@@ -32,7 +32,7 @@ action "LintersOK" {
 
 workflow "Publish to NPM on release" {
   on = "release"
-  resolves = ["Publish"]
+  resolves = ["Publish", "Debug Event"]
 }
 
 action "Publish" {
@@ -43,4 +43,9 @@ action "Publish" {
     LIVE = "0"
   }
   needs = ["Caching Build"]
+}
+
+action "Debug Event" {
+  uses = "actions/bin/sh@master"
+  runs = ["sh", "-c", "cat $GITHUB_EVENT_PATH"]
 }
