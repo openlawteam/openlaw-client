@@ -14,6 +14,16 @@ Before the first time you run `npm run build` or `npm run build_prod`, run `sbt 
 ERROR in Entry module not found: Error: Can't resolve '/$YOUR_DIR/openlaw-client/target/scala-2.12/client.js' in '/$YOUR_DIR/openlaw-client'.
 ```
 
+## Publishing Releases
+
+_(Project maintainers only)_
+
+Run `npm run release` which will walk you through the process of updating the
+semantic version, and drafting a GitHub release. Once the release is published
+on GitHub, the CI/CD should detect it and handle the publication to NPM.
+
+There is also `release:patch` shortcut for semver patch changes. 
+
 ## Contributing 
 
 See information about contributing [here](CONTRIBUTING.md).
