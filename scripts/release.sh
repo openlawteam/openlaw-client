@@ -19,9 +19,17 @@ if [ ! -f .npmrc ]; then
 fi
 
 # Publish to NPM. Will do a dry-run by default unless overridden via LIVE=1.
+#
+# The automatically triggered prepublishOnly npm step seems to be very unhappy
+# without unsafe-perm as it tries to deescalate its own privileges and can
+# no longer modify the working directory.
 LIVE=${LIVE:-0}
 if [ "$LIVE" -eq "1" ]; then
-    npm publish
+    # TODO: see if we can detect semver pre-release version strings and
+    # automatically append --tag next
+    #
+    # See: https://medium.com/@mbostock/prereleases-and-npm-e778fc5e2420
+    npm publish --unsafe-perm=true
 else
-    npm publish --dry-run
+    npm publish --unsafe-perm=true --dry-run
 fi

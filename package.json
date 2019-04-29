@@ -32,20 +32,17 @@
   "scripts": {
     "flow": "flow",
     "build": "rimraf dist && npm run build:esm && rollup -c --environment BUILD:development",
-    "build:esm": "npm run build:esm:apiclient && npm run build:esm:openlaw && npm run build:esm:index",
-    "build:esm:openlaw": "npx cpy --rename=openlaw.js 'target/scala-2.12/client.js' 'dist/esm/lib/' && npx terser dist/esm/lib/openlaw.js -cm --module -o dist/esm/lib/openlaw.js",
-    "build:esm:apiclient": "npx cpy --rename=apiclient.js 'js/src/APIClient.js' 'dist/esm/lib/' && npx babel dist/esm/lib/apiclient.js -o dist/esm/lib/apiclient.js && npx terser dist/esm/lib/apiclient.js -cm --module -o dist/esm/lib/apiclient.js",
-    "build:esm:index": "npx cpy --rename=index.js 'js/src/index.esm.js' 'dist/esm/lib/'",
+    "build:esm": "run-p build:esm:apiclient build:esm:openlaw build:esm:index",
+    "build:esm:openlaw": "cpy --rename=openlaw.js 'target/scala-2.12/client.js' 'dist/esm/lib/' && terser dist/esm/lib/openlaw.js -cm --module -o dist/esm/lib/openlaw.js",
+    "build:esm:apiclient": "cpy --rename=apiclient.js 'js/src/APIClient.js' 'dist/esm/lib/' && babel dist/esm/lib/apiclient.js -o dist/esm/lib/apiclient.js && terser dist/esm/lib/apiclient.js -cm --module -o dist/esm/lib/apiclient.js",
+    "build:esm:index": "cpy --rename=index.js 'js/src/index.esm.js' 'dist/esm/lib/'",
     "build_prod": "rimraf dist && npm run build:esm && rollup -c --environment BUILD:production",
     "watch": "flow && webpack --progress --colors --watch --config webpack.dev.js",
     "lint": "eslint --c .eslintrc.json 'js/src/**/*.js' --fix",
     "format": "prettier --config .prettierrc 'js/src/**/*.js' --write",
-    "prepublishOnly": "run-s build_prod use:npmReadme",
-    "postpublish": "npm run use:gitReadme",
+    "prepublishOnly": "npm run build_prod",
     "release": "np",
-    "release:patch": "np patch",
-    "use:npmReadme": "mv 'README.md' 'git.README.md' && mv 'npm.README.md' 'README.md'",
-    "use:gitReadme": "mv 'README.md' 'npm.README.md' && mv 'git.README.md' 'README.md'"
+    "release:patch": "np patch"
   },
   "np": {
     "yarn": false,
