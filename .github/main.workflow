@@ -35,13 +35,13 @@ action "NPM CI" {
 action "Prettier Lint" {
   uses = "actions/npm@master"
   needs = ["NPM CI"]
-  args = "style"
+  args = ["run", "style"]
 }
 
 action "ESLint" {
   uses = "actions/npm@master"
   needs = ["NPM CI"]
-  args = "lint"
+  args = ["run", "lint"]
 }
 
 action "LintersOK" {
@@ -49,7 +49,7 @@ action "LintersOK" {
   needs = [
     "Shellcheck Lint",
     "Prettier Lint",
-    "ESLint"
+    "ESLint",
   ]
   args = ["echo linters OK"]
 }
