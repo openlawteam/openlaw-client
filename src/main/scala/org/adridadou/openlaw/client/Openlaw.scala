@@ -59,7 +59,8 @@ object Openlaw extends LazyLogging {
       compiledTemplate,
       prepareParameters(jsParams),
       templates,
-      proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email) -> _).toOption}).toMap
+      proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email) -> _).toOption}).toMap,
+      Map()
     )
     handleExecutionResult(executionResult)
   }
