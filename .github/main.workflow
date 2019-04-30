@@ -62,7 +62,7 @@ workflow "Publish to NPM on release" {
 
 action "Publish" {
   uses = "docker://openlaw/client:packager"
-  runs = "./scripts/release.sh"
+  args = ["./scripts/release.sh"]
   secrets = ["NPM_TOKEN"]
   env = {
     LIVE = "1"

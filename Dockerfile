@@ -28,3 +28,4 @@ RUN npm run build_prod
 # The scripts folder now contains any shell scripts designed to be run inside
 # the container itself.
 COPY scripts scripts
+ENTRYPOINT ["./scripts/entrypoint.sh"]
