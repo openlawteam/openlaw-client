@@ -10,7 +10,7 @@ action "Docker Registry Login" {
 
 action "Caching Build" {
   uses = "actions/docker/cli@master"
-  runs = ["sh", "-c", "BRANCH=gh-${GITHUB_REF##*/} ci/build.sh"]
+  runs = ["sh", "-c", "BRANCH=${GITHUB_REF##*/} ID=gh ci/build.sh"]
   needs = ["Docker Registry Login"]
   env = {
     PUSH_CACHE = "1"
