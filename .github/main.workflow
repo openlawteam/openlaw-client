@@ -19,7 +19,11 @@ action "Caching Build" {
 
 workflow "Linters on push" {
   on = "push"
-  resolves = ["LintersOK"]
+  resolves = [
+    "Shellcheck Lint",
+    "Prettier Lint",
+    "ESLint",
+  ]
 }
 
 action "Shellcheck Lint" {
@@ -45,15 +49,6 @@ action "ESLint" {
   needs = ["NPM CI"]
 }
 
-action "LintersOK" {
-  uses = "actions/bin/sh@master"
-  needs = [
-    "Shellcheck Lint",
-    "Prettier Lint",
-    "ESLint",
-  ]
-  args = ["echo all linters OK"]
-}
 
 workflow "Publish to NPM on release" {
   on = "release"
