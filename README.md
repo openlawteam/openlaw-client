@@ -74,16 +74,16 @@ import { Openlaw, APIClient } from './path/to/openlaw/index.esm.js';
 import { APIClient } from "openlaw";
 
 // Include the root URL for the OpenLaw instance.
-apiClient = new APIClient('https://app.openlaw.io');
+apiClient = new APIClient("https://app.openlaw.io");
 
 /*
 Most of the APIClient method calls can only be made by a logged in
 user with a StandardUser role or an Admin role. Log in before making
 those calls.
 */
-apiClient.login('openlawuser+1@gmail.com', 'password');
+apiClient.login("openlawuser+1@gmail.com", "password");
 
-apiClient.getTemplate('Advisor Agreement').then(result => {
+apiClient.getTemplate("Advisor Agreement").then(result => {
   console.log(result);
 });
 /*
@@ -135,7 +135,7 @@ on GitHub, the CI/CD should detect it and handle the publication to NPM.
 
 More detailed documentation about the release process is [here](docs/ReleaseProcess.md).
 
-## Contributing 
+## Contributing
 
 See information about contributing [here](docs/CONTRIBUTING.md).
 
