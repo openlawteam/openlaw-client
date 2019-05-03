@@ -137,7 +137,7 @@ There is also `release:patch` shortcut for semver patch changes.
 
 ## Contributing 
 
-See information about contributing [here](CONTRIBUTING.md).
+See information about contributing [here](docs/CONTRIBUTING.md).
 
 ## License
 
