@@ -1,8 +1,15 @@
 {
-  "singleQuote": true,
-  "trailingComma": "all",
-  "bracketSpacing": false,
-  "jsxBracketSameLine": true,
-  "parser": "flow",
-  "tabWidth": 2
+  "overrides": [
+    {
+      "files": "*.js",
+      "options": {
+        "singleQuote": true,
+        "trailingComma": "all",
+        "bracketSpacing": false,
+        "jsxBracketSameLine": true,
+        "parser": "flow",
+        "tabWidth": 2
+      }
+    }
+  ]
 }
