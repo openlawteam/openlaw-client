@@ -133,7 +133,7 @@ Run `npm run release` which will walk you through the process of updating the
 semantic version, and drafting a GitHub release. Once the release is published
 on GitHub, the CI/CD should detect it and handle the publication to NPM.
 
-There is also `release:patch` shortcut for semver patch changes.
+More detailed documentation about the release process is [here](docs/ReleaseProcess.md).
 
 ## Contributing 
 
