@@ -25,11 +25,16 @@ fi
 # no longer modify the working directory.
 LIVE=${LIVE:-0}
 if [ "$LIVE" -eq "1" ]; then
-    # TODO: see if we can detect semver pre-release version strings and
-    # automatically append --tag next
+    # We can use a release script that detects semver pre-release SemVer version
+    # strings and automatically append `--tag prerelease` to the npm publish
+    # commands when they are detected. This restores proper behavior whereby end
+    # users will not automatically get a prerelease version on install unless
+    # explicitly requested.
     #
-    # See: https://medium.com/@mbostock/prereleases-and-npm-e778fc5e2420
-    npm publish --unsafe-perm=true
+    # The origin of this issue stems from NPM now starting to use their own "dist
+    # tags" that must be explicitly set, whereby they used to respect SemVer
+    # directly. See: https://medium.com/@mbostock/prereleases-and-npm-e778fc5e2420
+    npm run-script publish-semver -- --unsafe-perm=true
 else
-    npm publish --unsafe-perm=true --dry-run
+    npm run-script publish-semver -- --unsafe-perm=true --dry-run
 fi
