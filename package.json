@@ -43,6 +43,7 @@
     "style": "prettier '{js/src/**/*.js,docs/*.md,*.md}' --check",
     "style:fix": "prettier '{js/src/**/*.js,docs/*.md,*.md}' --write",
     "prepublishOnly": "npm run build_prod",
+    "publish-semver": "npm-publish-prerelease",
     "release": "np",
     "release:patch": "np patch"
   },
@@ -97,6 +98,7 @@
     "flow-bin": "^0.87.0",
     "flow-watch": "^1.1.4",
     "np": "^5.0.1",
+    "npm-publish-prerelease": "^1.0.2",
     "npm-run-all": "^4.1.5",
     "npm-watch": "^0.4.0",
     "prettier": "1.17.0",
