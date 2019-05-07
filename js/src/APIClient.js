@@ -483,12 +483,6 @@ export class APIClient {
     );
   }
 
-  async getUserDetails(email: string) {
-    return this.getCall('/user/details', {email}).then(
-      response => response.data,
-    );
-  }
-
   async getAddressDetails(placeId: string) {
     return this.getCall('/address/details', {placeId}).then(
       response => response.data,
