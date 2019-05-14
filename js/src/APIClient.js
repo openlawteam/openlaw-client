@@ -435,6 +435,20 @@ export class APIClient {
     });
   }
 
+  async sendERC712SignatureForCall(
+    contractId: string,
+    userAccount: string,
+    smartContractAddress: string,
+    signedData: string,
+  ) {
+    return this.getCall('/contract/call/erc712', {
+      contractId,
+      userAccount,
+      smartContractAddress,
+      signedData,
+    });
+  }
+
   async changeContractAlias(contractId: string, newName: string) {
     return this.getCall('/contract/alias/' + contractId, {
       contractId,
