@@ -11,10 +11,9 @@ import cats.implicits._
 import org.adridadou.openlaw.oracles.OpenlawSignatureProof
 import org.adridadou.openlaw.parser.contract.ParagraphEdits
 import org.adridadou.openlaw.result.{Failure, Result, Success}
-import org.adridadou.openlaw.values.{TemplateParameters, TemplateTitle}
+import org.adridadou.openlaw.values.{ContractId, TemplateParameters, TemplateTitle}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 import slogging.LazyLogging
-
 import io.circe.parser._
 import io.circe.syntax._
 
@@ -53,16 +52,16 @@ object Openlaw extends LazyLogging {
   }
 
   @JSExport
-  def executeForReview(compiledTemplate:CompiledTemplate, proofs:js.Dictionary[String], jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any]) : js.Dictionary[Any] = {
+  def executeForReview(compiledTemplate:CompiledTemplate, proofs:js.Dictionary[String], jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any], contractId:js.UndefOr[String]) : js.Dictionary[Any] = {
     val templates = jsTemplates.map({ case (name, template) => TemplateSourceIdentifier(TemplateTitle(name)) -> template}).toMap
+    val id = contractId.toOption.map(ContractId(_))
     val executionResult = engine.execute(
       compiledTemplate,
       prepareParameters(jsParams),
       templates,
       proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email) -> _).toOption}).toMap,
       Map(),
-      None
-    )
+      id)
     handleExecutionResult(executionResult)
   }
 
