@@ -45,7 +45,7 @@ object Openlaw extends LazyLogging {
   }
 
   @JSExport
-  def execute(compiledTemplate:CompiledTemplate, jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any], profileAddress:js.UndefOr[String]) : js.Dictionary[Any] = {
+  def execute(compiledTemplate:CompiledTemplate, jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any]) : js.Dictionary[Any] = {
     val templates = jsTemplates.map({ case (name, template) => TemplateSourceIdentifier(TemplateTitle(name)) -> template}).toMap
     val executionResult = engine.execute(compiledTemplate, prepareParameters(jsParams), templates)
     handleExecutionResult(executionResult)
