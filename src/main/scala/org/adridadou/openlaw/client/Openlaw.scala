@@ -52,16 +52,18 @@ object Openlaw extends LazyLogging {
   }
 
   @JSExport
-  def executeForReview(compiledTemplate:CompiledTemplate, proofs:js.Dictionary[String], jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any], contractId:js.UndefOr[String]) : js.Dictionary[Any] = {
+  def executeForReview(compiledTemplate:CompiledTemplate, proofs:js.Dictionary[String], jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any], contractId:js.UndefOr[String], profileAddress:js.UndefOr[String]) : js.Dictionary[Any] = {
     val templates = jsTemplates.map({ case (name, template) => TemplateSourceIdentifier(TemplateTitle(name)) -> template}).toMap
     val id = contractId.toOption.map(ContractId(_))
+    val address = profileAddress.toOption.map(EthereumAddress(_))
     val executionResult = engine.execute(
       compiledTemplate,
       prepareParameters(jsParams),
       templates,
       proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email) -> _).toOption}).toMap,
       Map(),
-      id)
+      id,
+      address)
     handleExecutionResult(executionResult)
   }
 
