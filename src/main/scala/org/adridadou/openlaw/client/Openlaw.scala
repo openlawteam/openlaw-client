@@ -16,6 +16,7 @@ import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 import slogging.LazyLogging
 import io.circe.parser._
 import io.circe.syntax._
+import org.scalajs.dom
 
 import scala.scalajs.js.Dictionary
 import scala.scalajs.js.JSConverters._
@@ -340,14 +341,27 @@ object Openlaw extends LazyLogging {
   @JSExport
   def getAgreements(executionResult: TemplateExecutionResult):js.Array[js.Dictionary[Any]] =
     executionResult.agreements.map(agreement => {
-      Dictionary[Any](
-        "agreement" -> agreement,
-        "executionResult" -> executionResult.findExecutionResult(agreement.executionResultId).getOrElse(executionResult),
-        "mainTemplate" -> agreement.mainTemplate,
-        "showTitle" -> agreement.header.shouldShowTitle,
-        "name" -> agreement.name,
-        "title" -> agreement.title.title
-      )
+      executionResult.findExecutionResult(agreement.executionResultId) match {
+        case Some(agreementExecutionResult) =>
+          Dictionary[Any](
+            "agreement" -> agreement,
+            "executionResult" -> agreementExecutionResult,
+            "mainTemplate" -> agreement.mainTemplate,
+            "showTitle" -> agreement.header.shouldShowTitle,
+            "name" -> agreement.name,
+            "title" -> agreement.title.title
+          )
+        case None =>
+          dom.console.log(s"error! execution result with id ${agreement.executionResultId.id} not found!. available: ${executionResult.subExecutions.values.map(_.id.id).mkString(",")}")
+          Dictionary[Any](
+            "agreement" -> agreement,
+            "mainTemplate" -> agreement.mainTemplate,
+            "showTitle" -> agreement.header.shouldShowTitle,
+            "name" -> agreement.name,
+            "title" -> agreement.title.title
+          )
+      }
+
     }).toJSArray
 
   @JSExport

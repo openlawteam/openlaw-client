@@ -437,6 +437,7 @@ export class APIClient {
 
   async sendERC712SignatureForCall(
     contractId: string,
+    identifier: string,
     userAccount: string,
     smartContractAddress: string,
     signedData: string,
@@ -446,6 +447,7 @@ export class APIClient {
       userAccount,
       smartContractAddress,
       signedData,
+      identifier,
     });
   }
 
