@@ -16,6 +16,7 @@ import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 import slogging.LazyLogging
 import io.circe.parser._
 import io.circe.syntax._
+import org.adridadou.openlaw.OpenlawValue
 import org.scalajs.dom
 
 import scala.scalajs.js.Dictionary
@@ -153,7 +154,7 @@ object Openlaw extends LazyLogging {
   @JSExport
   def getStructureFieldValue(variable:VariableDefinition, field:VariableDefinition, structureValue:js.UndefOr[String], executionResult: TemplateExecutionResult):js.UndefOr[String] = variable.varType(executionResult) match {
     case structureType:DefinedStructureType =>
-      val values = structureValue.map(structureType.cast(_, executionResult)).getOrElse(Map())
+      val values:Map[VariableName, OpenlawValue] = structureValue.map(structureType.cast(_, executionResult).underlying).getOrElse(Map())
       (for {
         value <- values.get(field.name)
         fieldType <- structureType.structure.typeDefinition.get(field.name)
@@ -168,7 +169,7 @@ object Openlaw extends LazyLogging {
     case structure:DefinedStructureType =>
       structure.structure.typeDefinition.get(VariableName(fieldName)) match {
         case Some(fieldType) =>
-          val currentMap = structureValue.map(structure.cast(_, executionResult)).getOrElse(Map())
+          val currentMap = structureValue.map(structure.cast(_, executionResult).underlying).getOrElse(Map())
           fieldValue.toOption match {
             case Some(value) =>
               val newMap = currentMap + (VariableName(fieldName) -> fieldType.cast(value, executionResult))
@@ -436,8 +437,9 @@ object Openlaw extends LazyLogging {
     val collection = getCollection(variable, executionResult, collectionValue)
     optValue.toOption match {
       case Some(value) =>
+        val values:Map[Int, OpenlawValue] = collection.values ++ Map(index -> collection.castValue(value, executionResult))
         collection.collectionType.internalFormat(collection
-          .copy(values = collection.values ++ Map(index -> collection.castValue(value, executionResult))))
+          .copy(values = values))
       case None =>
         collection.collectionType.internalFormat(collection
           .copy(values = collection.values - index))
