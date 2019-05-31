@@ -29,6 +29,7 @@ lazy val root = (project in file(".")).settings(
   ),
   relativeSourceMaps := true,
   artifactPath in (Compile, fullOptJS) := crossTarget.value / "client.js",
+  artifactPath in (Compile, fastOptJS) := crossTarget.value / "client.js",
   npmBuild := {
     (fastOptJS in Compile).value
     "npm run build" !
