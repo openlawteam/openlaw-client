@@ -144,10 +144,7 @@ object Openlaw extends LazyLogging {
   @JSExport
   def getStructureFieldDefinitions(variable:VariableDefinition, executionResult: TemplateExecutionResult):js.Array[VariableDefinition] = variable.varType(executionResult) match {
     case structure:DefinedStructureType =>
-      structure.structure.names.map{ name => {
-        val varType = structure.structure.typeDefinition(name)
-        VariableDefinition(name, Some(VariableTypeDefinition(varType.name)))
-      } }.toJSArray
+      structure.structure.names.map(name => structure.structure.typeDefinition(name)).toJSArray
     case _ => Seq().toJSArray
   }
 
@@ -158,7 +155,7 @@ object Openlaw extends LazyLogging {
       (for {
         value <- values.get(field.name)
         fieldType <- structureType.structure.typeDefinition.get(field.name)
-      } yield fieldType.internalFormat(value)).orUndefined
+      } yield fieldType.varType(executionResult).internalFormat(value)).orUndefined
 
     case _ =>
       js.undefined
