@@ -23,7 +23,7 @@ RUN npm ci
 COPY --from=builder /src/target/scala-2.12/client.js target/scala-2.12/client.js
 COPY js js
 COPY *.md *.js .babelrc LICENSE ./
-RUN npm run build_prod
+RUN npm run build:prod
 
 # The scripts folder now contains any shell scripts designed to be run inside
 # the container itself.

@@ -8,7 +8,7 @@ New code changes should always be introduced via a Pull Request branch:
 
 2. On that new branch, if there have been any changes to `package.json` that require a fresh `npm install` (e.g. updating a dependency version) then do that first. When you run `npm install` it should update the `package-lock.json` file -- make sure those updates are committed to the code as well.
 
-3. Otherwise, run `sbt fullOptJS` and then `npm run build_prod` and make sure those complete with no errors. If there are errors, resolve those before continuing.
+3. Otherwise, run `sbt fullOptJS` and then `npm run build:prod` and make sure those complete with no errors. If there are errors, resolve those before continuing.
 
 4. Ensure your Javascript code passes lints and adheres to our style guide. If you are not running a plugin in your editor that does this for you automatically, you can run `npm run lint:fix` and `npm run style:fix` respectively to automatically resolve any issues.
 
