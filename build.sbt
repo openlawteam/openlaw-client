@@ -36,7 +36,7 @@ lazy val root = (project in file(".")).settings(
   },
   npmBuildProd := {
     (fullOptJS in Compile).value
-    "npm run build_prod" !
+    "npm run build:prod" !
   },
   npmPack := {
     npmBuild.value
