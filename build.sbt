@@ -1,5 +1,4 @@
 import scala.language.postfixOps
-import sys.process._
 
 licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
@@ -29,27 +28,5 @@ lazy val root = (project in file(".")).settings(
   ),
   relativeSourceMaps := true,
   artifactPath in (Compile, fullOptJS) := crossTarget.value / "client.js",
-  artifactPath in (Compile, fastOptJS) := crossTarget.value / "client.js",
-  npmBuild := {
-    (fastOptJS in Compile).value
-    "npm run build" !
-  },
-  npmBuildProd := {
-    (fullOptJS in Compile).value
-    "npm run build:prod" !
-  },
-  npmPack := {
-    npmBuild.value
-    "npm pack" !
-  },
-
-  npmPackProd := {
-    npmBuildProd.value
-    "npm pack" !
-  }
+  artifactPath in (Compile, fastOptJS) := crossTarget.value / "client.js"
 ).enablePlugins(ScalaJSPlugin)
-
-lazy val npmBuild = taskKey[Unit]("Builds NPM module")
-lazy val npmBuildProd = taskKey[Unit]("Builds NPM module for production")
-lazy val npmPack = taskKey[Unit]("Packs NPM module")
-lazy val npmPackProd = taskKey[Unit]("Packs NPM module for production")
