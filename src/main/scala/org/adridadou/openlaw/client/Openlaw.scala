@@ -11,6 +11,7 @@ import cats.implicits._
 import org.adridadou.openlaw.oracles.OpenlawSignatureProof
 import org.adridadou.openlaw.parser.contract.ParagraphEdits
 import org.adridadou.openlaw.result.{Failure, Result, Success}
+import org.adridadou.openlaw.result.Implicits.RichResult
 import org.adridadou.openlaw.values.{ContractId, TemplateParameters, TemplateTitle}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 import slogging.LazyLogging
@@ -57,12 +58,12 @@ object Openlaw extends LazyLogging {
   def executeForReview(compiledTemplate:CompiledTemplate, proofs:js.Dictionary[String], jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any], contractId:js.UndefOr[String], profileAddress:js.UndefOr[String]) : js.Dictionary[Any] = {
     val templates = jsTemplates.map({ case (name, template) => TemplateSourceIdentifier(TemplateTitle(name)) -> template}).toMap
     val id = contractId.toOption.map(ContractId(_))
-    val address = profileAddress.toOption.map(EthereumAddress(_))
+    val address = profileAddress.toOption.map(EthereumAddress(_).getOrThrow())
     val executionResult = engine.execute(
       compiledTemplate,
       prepareParameters(jsParams),
       templates,
-      proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email) -> _).toOption}).toMap,
+      proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email).getOrThrow() -> _).toOption}).toMap,
       Map(),
       id,
       address)
@@ -86,7 +87,7 @@ object Openlaw extends LazyLogging {
       state = printAddressElement(address.get("state")),
       country = printAddressElement(address.get("country")),
       zipCode = printAddressElement(address.get("zipCode"))
-    ))
+    )).getOrThrow()
   }
 
   private def printAddressElement(optStr:Option[String]):String = optStr.getOrElse("n/a")
@@ -96,7 +97,7 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def validateContract(executionResult:OpenlawExecutionState):ValidationResult =
-    executionResult.validateExecution
+    executionResult.validateExecution.getOrThrow()
 
   @JSExport
   def showInForm(variable:VariableDefinition, executionResult:TemplateExecutionResult):Boolean =
@@ -133,9 +134,9 @@ object Openlaw extends LazyLogging {
     case Parameters(parameterMap) =>
       parameterMap.toMap.get("options").map({
         case ListParameter(params) =>
-          params.flatMap(_.evaluate(executionResult)).map(variableType.internalFormat)
+          params.flatMap(_.evaluate(executionResult).getOrThrow()).map(variableType.internalFormat(_).getOrThrow())
         case OneValueParameter(expr) =>
-          expr.evaluate(executionResult).map(variableType.internalFormat).toSeq
+          expr.evaluate(executionResult).getOrThrow().map(variableType.internalFormat(_).getOrThrow()).toSeq
         case _ => Seq()
       }).getOrElse(Seq())
     case _ => Seq()
@@ -151,11 +152,11 @@ object Openlaw extends LazyLogging {
   @JSExport
   def getStructureFieldValue(variable:VariableDefinition, field:VariableDefinition, structureValue:js.UndefOr[String], executionResult: TemplateExecutionResult):js.UndefOr[String] = variable.varType(executionResult) match {
     case structureType:DefinedStructureType =>
-      val values:Map[VariableName, OpenlawValue] = structureValue.map(structureType.cast(_, executionResult).underlying).getOrElse(Map())
+      val values:Map[VariableName, OpenlawValue] = structureValue.map(structureType.cast(_, executionResult).getOrThrow().underlying).getOrElse(Map())
       (for {
         value <- values.get(field.name)
         fieldType <- structureType.structure.typeDefinition.get(field.name)
-      } yield fieldType.varType(executionResult).internalFormat(value)).orUndefined
+      } yield fieldType.varType(executionResult).internalFormat(value).getOrThrow()).orUndefined
 
     case _ =>
       js.undefined
@@ -166,14 +167,14 @@ object Openlaw extends LazyLogging {
     case structure:DefinedStructureType =>
       structure.structure.typeDefinition.get(VariableName(fieldName)) match {
         case Some(fieldType) =>
-          val currentMap = structureValue.map(structure.cast(_, executionResult).underlying).getOrElse(Map())
+          val currentMap = structureValue.map(structure.cast(_, executionResult).getOrThrow().underlying).getOrElse(Map())
           fieldValue.toOption match {
             case Some(value) =>
-              val newMap = currentMap + (VariableName(fieldName) -> fieldType.cast(value, executionResult))
-              structure.internalFormat(newMap)
+              val newMap = currentMap + (VariableName(fieldName) -> fieldType.cast(value, executionResult).getOrThrow())
+              structure.internalFormat(newMap).getOrThrow()
             case None =>
               val newMap = currentMap - VariableName(fieldName)
-              structure.internalFormat(newMap)
+              structure.internalFormat(newMap).getOrThrow()
           }
         case None =>
           structureValue
@@ -183,7 +184,7 @@ object Openlaw extends LazyLogging {
   }
 
   @JSExport
-  def getAddress(json:String):Address = AddressType.cast(json)
+  def getAddress(json:String):Address = AddressType.cast(json).getOrThrow()
 
   @JSExport
   def getFormattedAddress(address:Address):String = address.formattedAddress
@@ -260,7 +261,7 @@ object Openlaw extends LazyLogging {
     variable.defaultValue
       .map(variable.varType(executionResult).construct(_, executionResult))
       .map({
-        case Success(Some(value)) => variable.varType(executionResult).internalFormat(value)
+        case Success(Some(value)) => variable.varType(executionResult).internalFormat(value).getOrThrow()
         case Success(None) => ""
         case Failure(ex, message) =>
           logger.error(message, ex)
@@ -292,7 +293,7 @@ object Openlaw extends LazyLogging {
     render(agreement, hiddenVariables, jsOverriddenParagraphs, markdown.forPreview)
 
   @JSExport
-  def parseMarkdown(str:String):String = markdown.forReviewParagraph(str)
+  def parseMarkdown(str:String):String = markdown.forReviewParagraph(str).getOrThrow()
 
   @JSExport
   def renderParagraphForEdit(agreement: StructuredAgreement, index:Int): String =
@@ -369,12 +370,12 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def createIdentityInternalValue(userId:js.UndefOr[String], email:String):String =
-    IdentityType.internalFormat(createIdentity(userId, email))
+    IdentityType.internalFormat(createIdentity(userId, email)).getOrThrow()
 
   @JSExport
   def createIdentity(userId:js.UndefOr[String], email:String):Identity = {
     Identity(
-      email = Email(email)
+      email = Email(email).getOrThrow()
     )
   }
 
@@ -391,6 +392,7 @@ object Openlaw extends LazyLogging {
   @JSExport
   def isSignatory(email:String, executionResult: TemplateExecutionResult):Boolean = executionResult
       .getVariableValues[Identity](IdentityType)
+      .getOrThrow()
       .exists(_.email.email === email)
 
   @JSExport
@@ -426,7 +428,7 @@ object Openlaw extends LazyLogging {
   @JSExport
   def addElementToCollection(variable:VariableDefinition, value:String, executionResult: TemplateExecutionResult):String = {
     val collection = getCollection(variable, executionResult, value)
-    collection.collectionType.internalFormat(collection.copy(size = collection.size + 1))
+    collection.collectionType.internalFormat(collection.copy(size = collection.size + 1)).getOrThrow()
   }
 
   @JSExport
@@ -434,12 +436,12 @@ object Openlaw extends LazyLogging {
     val collection = getCollection(variable, executionResult, collectionValue)
     optValue.toOption match {
       case Some(value) =>
-        val values:Map[Int, OpenlawValue] = collection.values ++ Map(index -> collection.castValue(value, executionResult))
+        val values:Map[Int, OpenlawValue] = collection.values ++ Map(index -> collection.castValue(value, executionResult).asInstanceOf[OpenlawValue]) // TODO: Fix core code to return OpenlawValue type
         collection.collectionType.internalFormat(collection
-          .copy(values = values))
+          .copy(values = values)).getOrThrow()
       case None =>
         collection.collectionType.internalFormat(collection
-          .copy(values = collection.values - index))
+          .copy(values = collection.values - index)).getOrThrow()
     }
   }
 
@@ -454,21 +456,21 @@ object Openlaw extends LazyLogging {
 
     collection.collectionType.internalFormat(collection
       .copy(values = newValues, size = Math.max(collection.size - 1, 0))
-    )
+    ).getOrThrow()
   }
 
   @JSExport
   def getCollectionElementValue(variable:VariableDefinition, executionResult: TemplateExecutionResult, value:String, index:Int):String = {
     val collection = getCollection(variable, executionResult, value)
     collection.values.get(index)
-      .map(collection.valueInternalFormat)
+      .map(collection.valueInternalFormat(_).getOrThrow())
       .getOrElse("")
   }
 
   @JSExport
   def getCollectionValue(variable:VariableDefinition, executionResult: TemplateExecutionResult, value:String):String = {
     val collection = getCollection(variable, executionResult, value)
-    CollectionType(collection.collectionType).internalFormat(collection)
+    CollectionType(collection.collectionType).internalFormat(collection).getOrThrow()
   }
 
   private def getCollection(variable:VariableDefinition, executionResult: TemplateExecutionResult, value:String):CollectionValue = {
@@ -477,7 +479,7 @@ object Openlaw extends LazyLogging {
         if(value.isEmpty) {
           CollectionValue(collectionType = collectionType)
         } else {
-          VariableType.convert[CollectionValue](collectionType.cast(value, executionResult))
+          VariableType.convert[CollectionValue](collectionType.cast(value, executionResult).getOrThrow()).getOrThrow()
         }
       case _ =>
         throw new RuntimeException(s"add element to collection only works for a variable of type Collection, not '${variable.varType(executionResult).name}'")
