@@ -11,7 +11,7 @@ import cats.implicits._
 import org.adridadou.openlaw.oracles.OpenlawSignatureProof
 import org.adridadou.openlaw.parser.contract.ParagraphEdits
 import org.adridadou.openlaw.result.{Failure, Result, Success}
-import org.adridadou.openlaw.result.Implicits.RichResult
+import org.adridadou.openlaw.result.Implicits._
 import org.adridadou.openlaw.values.{ContractId, TemplateParameters, TemplateTitle}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 import slogging.LazyLogging
@@ -20,7 +20,7 @@ import io.circe.syntax._
 import org.adridadou.openlaw.OpenlawValue
 import org.scalajs.dom
 
-import scala.scalajs.js.Dictionary
+import scala.scalajs.js.{Dictionary, JSON}
 import scala.scalajs.js.JSConverters._
 
 /**
@@ -49,31 +49,37 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def execute(compiledTemplate:CompiledTemplate, jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any]) : js.Dictionary[Any] = {
-    val templates = jsTemplates.map({ case (name, template) => TemplateSourceIdentifier(TemplateTitle(name)) -> template}).toMap
-    val executionResult = engine.execute(compiledTemplate, prepareParameters(jsParams), templates)
-    handleExecutionResult(executionResult)
+    handleExecutionResult(engine.execute(
+      compiledTemplate,
+      prepareParameters(jsParams),
+      prepareTemplates(jsTemplates)))
   }
 
   @JSExport
-  def executeForReview(compiledTemplate:CompiledTemplate, proofs:js.Dictionary[String], jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any], contractId:js.UndefOr[String], profileAddress:js.UndefOr[String]) : js.Dictionary[Any] = {
-    val templates = jsTemplates.map({ case (name, template) => TemplateSourceIdentifier(TemplateTitle(name)) -> template}).toMap
-    val id = contractId.toOption.map(ContractId(_))
-    val address = profileAddress.toOption.map(EthereumAddress(_).getOrThrow())
-    val executionResult = engine.execute(
+  def execute(compiledTemplate:CompiledTemplate, jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any], externalCallStructures:js.Dictionary[Any]) : js.Dictionary[Any] = {
+    handleExecutionResult(engine.execute(
       compiledTemplate,
       prepareParameters(jsParams),
-      templates,
-      proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email).getOrThrow() -> _).toOption}).toMap,
-      Map(),
-      id,
-      address)
-    handleExecutionResult(executionResult)
+      prepareTemplates(jsTemplates),
+      prepareStructures(externalCallStructures)))
+  }
+
+  @JSExport
+  def executeForReview(compiledTemplate:CompiledTemplate, proofs:js.Dictionary[String], jsTemplates:js.Dictionary[CompiledTemplate], jsParams:js.Dictionary[Any], externalCallStructures:js.Dictionary[Any], contractId:js.UndefOr[String], profileAddress:js.UndefOr[String]) : js.Dictionary[Any] = {
+    handleExecutionResult(engine.execute(
+      compiledTemplate,
+      prepareParameters(jsParams),
+      prepareTemplates(jsTemplates),
+      signatureProofs = proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email).getOrThrow() -> _).toOption}).toMap,
+      executions = Map(),
+      prepareStructures(externalCallStructures),
+      contractId.toOption.map(ContractId(_)),
+      profileAddress.toOption.map(EthereumAddress(_).getOrThrow())))
   }
 
   @JSExport
   def resumeExecution(executionResult:OpenlawExecutionState, jsTemplates:js.Dictionary[CompiledTemplate]) : js.Dictionary[Any] = {
-    val templates = jsTemplates.map({ case (name, template) => TemplateSourceIdentifier(TemplateTitle(name)) -> template}).toMap
-    handleExecutionResult(engine.resumeExecution(executionResult, templates))
+    handleExecutionResult(engine.resumeExecution(executionResult, prepareTemplates(jsTemplates)))
   }
 
   @JSExport
@@ -391,16 +397,16 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def isSignatory(email:String, executionResult: TemplateExecutionResult):Boolean = executionResult
-      .getVariableValues[Identity](IdentityType)
-      .getOrThrow()
-      .exists(_.email.email === email)
+    .getVariableValues[Identity](IdentityType)
+    .getOrThrow()
+    .exists(_.email.email === email)
 
   @JSExport
   def getSections(document:TemplateExecutionResult):js.Array[String] = document.variableSectionList.toJSArray
 
   @JSExport
   def getVariableSections(document:TemplateExecutionResult):js.Dictionary[js.Array[String]] = document.sections
-      .map({case (key,variables) => key -> variables.map(_.name).toJSArray}).toJSDictionary
+    .map({case (key,variables) => key -> variables.map(_.name).toJSArray}).toJSDictionary
 
   @JSExport
   def isDeal(template:CompiledTemplate):Boolean = template match {
@@ -506,5 +512,26 @@ object Openlaw extends LazyLogging {
 
       ParagraphEdits(edits)
     }
+  }
+
+  private def prepareTemplates(jsTemplates: js.Dictionary[CompiledTemplate]): Map[TemplateSourceIdentifier, CompiledTemplate] = {
+    jsTemplates.map({ case (name, template) => TemplateSourceIdentifier(TemplateTitle(name)) -> template}).toMap
+  }
+
+  private def prepareStructures(externalCallStructures: Dictionary[Any]): Map[ServiceName, IntegratedServiceDefinition] = {
+    val dynParams = externalCallStructures.asInstanceOf[js.Dynamic]
+    externalCallStructures
+      .keys
+      .toSeq
+      .map(key => key -> dynParams.selectDynamic(key))
+      .filter({case (_,value) => !js.isUndefined(value)})
+      .map({case (key,value) => ServiceName(key) -> value.toString})
+      .toMap
+      .map({
+        case (serviceName, jsonAbi) => {
+          val abi = decode[IntegratedServiceDefinition](jsonAbi).toOption
+          serviceName -> abi.toResult(s"Missing or invalid abi for external service <$serviceName>, abi: <${jsonAbi}>").getOrThrow()
+        }
+      })
   }
 }
