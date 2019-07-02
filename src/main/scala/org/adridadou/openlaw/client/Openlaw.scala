@@ -432,16 +432,15 @@ object Openlaw extends LazyLogging {
   }
 
   @JSExport
-  def setElementToCollection(optValue:js.UndefOr[String], index:Int, variable:VariableDefinition, collectionValue:String, executionResult: TemplateExecutionResult):String = {
+  def setElementToCollection(optValue:js.UndefOr[String], index:Int, variable:VariableDefinition, collectionValue:String, executionResult: TemplateExecutionResult): String = {
     val collection = getCollection(variable, executionResult, collectionValue)
     optValue.toOption match {
       case Some(value) =>
-        val values:Map[Int, OpenlawValue] = collection.values ++ Map(index -> collection.castValue(value, executionResult).asInstanceOf[OpenlawValue]) // TODO: Fix core code to return OpenlawValue type
-        collection.collectionType.internalFormat(collection
-          .copy(values = values)).getOrThrow()
+        val openlawValue = collection.castValue(value, executionResult).getOrThrow()
+        val values: Map[Int, OpenlawValue] = collection.values ++ Map(index -> openlawValue)
+        collection.collectionType.internalFormat(collection.copy(values = values)).getOrThrow()
       case None =>
-        collection.collectionType.internalFormat(collection
-          .copy(values = collection.values - index)).getOrThrow()
+        collection.collectionType.internalFormat(collection.copy(values = collection.values - index)).getOrThrow()
     }
   }
 
