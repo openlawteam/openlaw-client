@@ -20,7 +20,7 @@ import io.circe.syntax._
 import org.adridadou.openlaw.OpenlawValue
 import org.scalajs.dom
 
-import scala.scalajs.js.{Dictionary, JSON}
+import scala.scalajs.js.Dictionary
 import scala.scalajs.js.JSConverters._
 
 /**
@@ -309,8 +309,19 @@ object Openlaw extends LazyLogging {
     renderFunc(agreement, prepareParagraphs(agreement, jsOverriddenParagraphs), hiddenVariables)
 
   @JSExport
-  def checkValidity(variable:VariableDefinition, optValue:js.UndefOr[String], executionResult: TemplateExecutionResult): Any = optValue
-    .flatMap(variable.varType(executionResult).cast(_, executionResult))
+  def checkValidity(variable:VariableDefinition, optValue:js.UndefOr[String], executionResult: TemplateExecutionResult): js.Dictionary[Any] = optValue.toOption
+    .map(variable.varType(executionResult).cast(_, executionResult)) match {
+    case Some(Failure(_ ,message)) =>
+      Dictionary(
+        "isError" -> true,
+        "errorMessage" -> message
+      )
+
+    case _ =>
+      Dictionary(
+        "isError" -> false
+      )
+  }
 
   @JSExport
   def getTypes:js.Array[String] =
@@ -528,10 +539,9 @@ object Openlaw extends LazyLogging {
       .map({case (key,value) => ServiceName(key) -> value.toString})
       .toMap
       .map({
-        case (serviceName, jsonAbi) => {
+        case (serviceName, jsonAbi) =>
           val abi = decode[IntegratedServiceDefinition](jsonAbi).toOption
           serviceName -> abi.toResult(s"Missing or invalid abi for external service <$serviceName>, abi: <${jsonAbi}>").getOrThrow()
-        }
       })
   }
 }
