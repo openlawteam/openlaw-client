@@ -383,6 +383,10 @@ object Openlaw extends LazyLogging {
     }).toJSArray
 
   @JSExport
+  def createExternalSignatureValue(userId:js.UndefOr[String], email: String, serviceName: String):String =
+    ExternalSignatureType.internalFormat(ExternalSignature(Option(createIdentity(userId, email)), ServiceName(serviceName))).getOrThrow()
+
+  @JSExport
   def getIdentityEmail(identity:Identity):String = identity.email.email
 
   @JSExport
