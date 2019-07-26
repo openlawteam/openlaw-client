@@ -383,6 +383,10 @@ object Openlaw extends LazyLogging {
     }).toJSArray
 
   @JSExport
+  def createExternalSignatureValue(userId:js.UndefOr[String], email: String, serviceName: String):String =
+    ExternalSignatureType.internalFormat(ExternalSignature(Option(createIdentity(userId, email)), ServiceName(serviceName))).getOrThrow()
+
+  @JSExport
   def getIdentityEmail(identity:Identity):String = identity.email.email
 
   @JSExport
@@ -399,7 +403,7 @@ object Openlaw extends LazyLogging {
   @JSExport
   def getIdentities(validationResult: ValidationResult, executionResult: TemplateExecutionResult):js.Array[VariableDefinition] = {
     executionResult
-      .getVariables(IdentityType)
+      .getVariables(IdentityType, ExternalSignatureType)
       .map({case (_,variable) => variable.name -> variable})
       .toMap.values
       .filter(variable => validationResult.missingIdentities.contains(variable.name))
@@ -407,10 +411,16 @@ object Openlaw extends LazyLogging {
   }
 
   @JSExport
-  def isSignatory(email:String, executionResult: TemplateExecutionResult):Boolean = executionResult
-    .getVariableValues[Identity](IdentityType)
-    .getOrThrow()
-    .exists(_.email.email === email)
+  def isSignatory(email:String, executionResult: TemplateExecutionResult):Boolean = {
+    executionResult
+      .getVariableValues[Identity](IdentityType)
+      .getOrThrow()
+      .exists(_.email.email === email) ||
+      executionResult
+        .getVariableValues[ExternalSignature](ExternalSignatureType)
+        .getOrThrow()
+        .exists(_.identity.exists(id => id.email.email === email))
+  }
 
   @JSExport
   def getSections(document:TemplateExecutionResult):js.Array[String] = document.variableSectionList.toJSArray
