@@ -10,12 +10,14 @@
       "plugin:security/recommended"
     ],
     "globals": {
-        "describe": true,
+        "__dirname": true,
         "afterAll": true,
         "afterEach": true,
         "beforeAll": true,
         "beforeEach": true,
+        "describe": true,
         "expect": true,
+        "process": true,
         "test": true
     },
     "parserOptions": {

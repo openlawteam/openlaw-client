@@ -1,6 +1,9 @@
 // @flow
+
 import axios from 'axios';
 import queryString from 'query-string';
+
+type AnyObjectType = {[string]: any};
 
 type AuthConfiguration = {
   username: string,
@@ -8,26 +11,41 @@ type AuthConfiguration = {
 };
 
 type Configuration = {
-  root: string,
   auth: ?AuthConfiguration,
+  root: string,
+};
+
+type GetCallDetailsType = {
+  auth: AuthConfiguration | void,
+  headers: {[string]: string},
+  responseType?: string,
+};
+
+type PostCallDetailsType = {
+  auth: AuthConfiguration | void,
+  data: any,
+  headers: {[string]: string},
+  method: 'post' | 'POST',
+  responseType?: string,
+  url: string,
 };
 
 type Template = {
+  compiledTemplate: AnyObjectType,
+  creatorId: string,
   id: string,
+  index: number,
   name: string,
-  compiledTemplate: Object,
-  structuredDocument: Object,
+  structuredDocument: AnyObjectType,
   timestamp: number,
   title: string,
   version: string,
-  index: number,
-  creatorId: string,
 };
 
 export class APIClient {
   conf: Configuration;
   jwt: string = '';
-  loginPromise: Promise<Object> = Promise.resolve({});
+  loginPromise: Promise<AnyObjectType> = Promise.resolve({});
 
   constructor(conf: Configuration | string) {
     if (typeof conf === 'string') {
@@ -37,15 +55,21 @@ export class APIClient {
     }
   }
 
-  async waitForLogin(): Promise<Object> {
+  async waitForLogin(): Promise<AnyObjectType> {
     return this.loginPromise;
   }
 
-  async postCall(url: string, params: any, headers: ?Object): Promise<Object> {
+  async postCall(
+    url: string,
+    params: any,
+    headers: ?AnyObjectType,
+  ): Promise<AnyObjectType> {
     return this.waitForLogin().then(() => {
       let callHeaders = Object.assign({}, headers);
+
       callHeaders['Content-Type'] =
         callHeaders['Content-Type'] || 'application/x-www-form-urlencoded';
+
       if (this.jwt) {
         callHeaders['OPENLAW_JWT'] = this.jwt;
       }
@@ -53,7 +77,7 @@ export class APIClient {
       const data =
         typeof params === 'string' ? params : queryString.stringify(params);
 
-      const postCallDetails = {
+      const postCallDetails: PostCallDetailsType = {
         method: 'post',
         url: this.conf.root + url,
         data: data,
@@ -67,7 +91,6 @@ export class APIClient {
 
       const urlRegex = new RegExp(/contract\/docx|contract\/pdf/);
       if (urlRegex.test(url)) {
-        // $FlowFixMe - add new property for flow sealed object
         postCallDetails.responseType = 'blob';
       }
 
@@ -86,20 +109,22 @@ export class APIClient {
 
   async getCall(
     url: string,
-    params: ?Object,
-    headers: ?Object,
-  ): Promise<Object> {
+    params: ?AnyObjectType,
+    headers: ?AnyObjectType,
+  ): Promise<AnyObjectType> {
     return this.waitForLogin().then(() => {
       let callHeaders = Object.assign({}, headers);
       let paramsUrl = '';
+
       if (params) {
         paramsUrl = '?' + queryString.stringify(params);
       }
+
       if (this.jwt) {
         callHeaders['OPENLAW_JWT'] = this.jwt;
       }
 
-      const getCallDetails = {
+      const getCallDetails: GetCallDetailsType = {
         headers: callHeaders,
         auth: undefined,
       };
@@ -111,8 +136,8 @@ export class APIClient {
       const urlRegex = new RegExp(
         /templates\/json|draft\/json|contract\/docx|contract\/pdf|contract\/json/,
       );
+
       if (urlRegex.test(url)) {
-        // $FlowFixMe - add new property for flow sealed object
         getCallDetails.responseType = 'blob';
       }
 
@@ -138,7 +163,7 @@ export class APIClient {
     return this.loginPromise;
   }
 
-  async uploadContract(params: Object): Promise<string> {
+  async uploadContract(params: AnyObjectType): Promise<string> {
     const headers = {
       'Content-Type': 'text/plain;charset=UTF-8',
     };
@@ -149,7 +174,7 @@ export class APIClient {
     ).then(response => response.data);
   }
 
-  async uploadDraft(params: Object): Promise<string> {
+  async uploadDraft(params: AnyObjectType): Promise<string> {
     const headers = {
       'Content-Type': 'text/plain;charset=UTF-8',
     };
@@ -159,7 +184,7 @@ export class APIClient {
     );
   }
 
-  async uploadFlow(params: Object): Promise<string> {
+  async uploadFlow(params: AnyObjectType): Promise<string> {
     const headers = {
       'Content-Type': 'text/plain;charset=UTF-8',
     };
@@ -192,14 +217,14 @@ export class APIClient {
     contractId: string,
     fullName: string,
     accessToken: ?string,
-  ): Promise<Object> {
+  ): Promise<AnyObjectType> {
     return this.getCall('/prepareSignature/contract/' + contractId, {
       fullName,
       accessToken,
     });
   }
 
-  async getAccessToken(contractId: string): Promise<Object> {
+  async getAccessToken(contractId: string): Promise<AnyObjectType> {
     return this.getCall('/contract/token/' + contractId);
   }
 
@@ -225,7 +250,7 @@ export class APIClient {
     contractId: string,
     fullName: string,
     accessToken: ?string,
-  ): Promise<Object> {
+  ): Promise<AnyObjectType> {
     return this.getCall('/sign/contract/' + contractId, {
       fullName,
       accessToken,
@@ -235,7 +260,7 @@ export class APIClient {
   async loadContractStatus(
     contractId: string,
     accessToken: ?string,
-  ): Promise<Object> {
+  ): Promise<AnyObjectType> {
     return this.getCall('/contract/sign/status', {
       id: contractId,
       accessToken,
@@ -262,7 +287,7 @@ export class APIClient {
     });
   }
 
-  async changeEthereumNetwork(name: string): Promise<Object> {
+  async changeEthereumNetwork(name: string): Promise<AnyObjectType> {
     return this.getCall('/ethereum/changeEthereumNetwork/' + name);
   }
 
@@ -304,13 +329,13 @@ export class APIClient {
     }).then(response => response.data);
   }
 
-  async getTemplate(title: string): Promise<Object> {
+  async getTemplate(title: string): Promise<AnyObjectType> {
     return this.getCall('/template/raw/' + title).then(
       response => response.data,
     );
   }
 
-  async getTemplateById(id: string): Promise<Object> {
+  async getTemplateById(id: string): Promise<AnyObjectType> {
     return this.getCall('/template/id/raw/' + id).then(
       response => response.data,
     );
@@ -326,19 +351,22 @@ export class APIClient {
     draftId: string,
     version: number,
     accessToken: ?string,
-  ): Promise<Object> {
+  ): Promise<AnyObjectType> {
     return this.getCall('/draft/raw/' + draftId + '/' + version, {
       accessToken,
     }).then(response => response.data);
   }
 
-  async getContract(contractId: string, accessToken: ?string): Promise<Object> {
+  async getContract(
+    contractId: string,
+    accessToken: ?string,
+  ): Promise<AnyObjectType> {
     return this.getCall('/contract/raw/' + contractId, {accessToken}).then(
       response => response.data,
     );
   }
 
-  async getFlow(flowId: string, accessToken: ?string): Promise<Object> {
+  async getFlow(flowId: string, accessToken: ?string): Promise<AnyObjectType> {
     return this.getCall('/flow/raw/' + flowId, {accessToken}).then(
       response => response.data,
     );
@@ -519,7 +547,7 @@ export class APIClient {
     }).then(response => response.data);
   }
 
-  async downloadAsDocx(params: Object) {
+  async downloadAsDocx(params: AnyObjectType) {
     const data = JSON.stringify(params);
     return this.postCall('/download/contract/docx', {data}).then(response => {
       const blob = new Blob([response.data], {type: response.data.type});
@@ -533,15 +561,14 @@ export class APIClient {
         if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
       }
       link.setAttribute('download', fileName);
-      // $FlowFixMe
-      document.body.appendChild(link);
+      document.body && document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     });
   }
 
-  async downloadAsPdf(params: Object) {
+  async downloadAsPdf(params: AnyObjectType) {
     const data = JSON.stringify(params);
     return this.postCall('/download/contract/pdf', {data}).then(response => {
       const blob = new Blob([response.data], {type: response.data.type});
@@ -555,8 +582,7 @@ export class APIClient {
         if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
       }
       link.setAttribute('download', fileName);
-      // $FlowFixMe
-      document.body.appendChild(link);
+      document.body && document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
@@ -576,8 +602,7 @@ export class APIClient {
         if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
       }
       link.setAttribute('download', fileName);
-      // $FlowFixMe
-      document.body.appendChild(link);
+      document.body && document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
@@ -597,8 +622,7 @@ export class APIClient {
         if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
       }
       link.setAttribute('download', fileName);
-      // $FlowFixMe
-      document.body.appendChild(link);
+      document.body && document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
@@ -618,8 +642,7 @@ export class APIClient {
         if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
       }
       link.setAttribute('download', fileName);
-      // $FlowFixMe
-      document.body.appendChild(link);
+      document.body && document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
@@ -639,8 +662,7 @@ export class APIClient {
         if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
       }
       link.setAttribute('download', fileName);
-      // $FlowFixMe
-      document.body.appendChild(link);
+      document.body && document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
@@ -660,8 +682,7 @@ export class APIClient {
         if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
       }
       link.setAttribute('download', fileName);
-      // $FlowFixMe
-      document.body.appendChild(link);
+      document.body && document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
