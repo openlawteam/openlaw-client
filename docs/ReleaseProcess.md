@@ -16,7 +16,7 @@ New code changes should always be introduced via a Pull Request branch:
 
 ## Releasing to NPM :rocket:
 
-New releases are always cut from the `master` branch, and managed via GitHub Releases with [Semantic Versioning](https://semver.org/spec/v2.0.0.html) formatted tags. As a developer, this process is largely automated for you. To make a release of the current status of master, follow these steps:
+New releases are always cut from the `master` branch, and managed via GitHub Releases with [Semantic Versioning](https://semver.org/spec/v2.0.0.html) formatted tags. As a developer, this process is largely automated for you. Just make sure you are a [collaborator](https://github.com/openlawteam/openlaw-client/settings/collaboration) of openlaw-client and you have installed the `npm ci` and `npm np` packages. To make a release of the current status of master, follow these steps:
 
 1. Switch to `master` and pull the latest.
 
