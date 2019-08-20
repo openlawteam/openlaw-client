@@ -46,3 +46,7 @@ ls
 
 project/.idea
 project/project
+
+# Metals specific (Scala language server https://scalameta.org/metals/)
+.metals/
+.bloop/
