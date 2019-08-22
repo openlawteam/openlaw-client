@@ -37,7 +37,7 @@ object Openlaw extends LazyLogging {
   def compileTemplate(text:String) : js.Dictionary[Any] = markdown.compileTemplate(text, clock) match {
     case Left(err) => js.Dictionary(
       "isError" -> true,
-      "errorMessage" -> err,
+      "errorMessage" -> err.message,
       "compiledTemplate" -> js.undefined
     )
     case Right(result) => js.Dictionary(
