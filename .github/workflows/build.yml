@@ -10,7 +10,7 @@ jobs:
     # at all! avoid using it since pinning to `master` is too risky because
     # inputs may be refactored when they migrate it to new style yaml format.
     - name: Docker Registry Login
-      runs: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -19,4 +19,4 @@ jobs:
     - name: Caching Build
       env:
         PUSH_CACHE: "1"
-      runs: sh -c "BRANCH=${GITHUB_REF##*/} ID=gh ci/build.sh"
+      run: sh -c "BRANCH=${GITHUB_REF##*/} ID=gh ci/build.sh"

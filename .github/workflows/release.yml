@@ -10,24 +10,24 @@ jobs:
       # we move this into a gated part of build perhaps? 
     - uses: actions/checkout@v1
     - name: Docker Registry Login
-      runs: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     - name: Caching Build
       env:
         PUSH_CACHE: "1"
-      runs: sh -c "BRANCH=${GITHUB_REF##*/} ID=gh ci/build.sh"
+      run: sh -c "BRANCH=${GITHUB_REF##*/} ID=gh ci/build.sh"
 
     # actual release stuffs
     - name: Debug Event
-      runs: cat $GITHUB_EVENT_PATH
+      run: cat $GITHUB_EVENT_PATH
     # ^^^ left over from when we were debugging release happening 3x, leave for
     # now to see what is happening in new world.
     # TODO: delete debug event later when no longer needed.
 
     - name: Publish
-      runs: docker run -it openlaw/client:packager ./scripts/release.sh
+      run: docker run -it openlaw/client:packager ./scripts/release.sh
       env:
         LIVE: "1"
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

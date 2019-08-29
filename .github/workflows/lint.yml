@@ -9,9 +9,9 @@ jobs:
       with:
         node-version: '10.x'
     - uses: actions/checkout@v1
-    - runs: npm ci
-    - runs: npm run lint
-    - runs: npm run style
+    - run: npm ci
+    - run: npm run lint
+    - run: npm run style
 
   lint-shell:
     runs-on: ubuntu-latest
