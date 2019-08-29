@@ -1,32 +1,33 @@
 on: release
 name: Publish to NPM on release
+
 jobs:
-  dockerRegistryLogin:
-    name: Docker Registry Login
+  publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+      # all of the below are duplicative of build.yml, and documented there.
+      # TODO(mroth): do we really need this here anymore? or in new setup can
+      # we move this into a gated part of build perhaps? 
+    - uses: actions/checkout@v1
     - name: Docker Registry Login
-      uses: actions/docker/login@master
+      runs: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       env:
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     - name: Caching Build
-      uses: actions/docker/cli@master
       env:
         PUSH_CACHE: "1"
-      with:
-        entrypoint: sh
-        args: -c "BRANCH=${GITHUB_REF##*/} ID=gh ci/build.sh"
+      runs: sh -c "BRANCH=${GITHUB_REF##*/} ID=gh ci/build.sh"
+
+    # actual release stuffs
     - name: Debug Event
-      uses: actions/bin/sh@master
-      with:
-        entrypoint: sh
-        args: -c "cat ${{ github.event_path }}"
+      runs: cat $GITHUB_EVENT_PATH
+    # ^^^ left over from when we were debugging release happening 3x, leave for
+    # now to see what is happening in new world.
+    # TODO: delete debug event later when no longer needed.
+
     - name: Publish
-      uses: docker://openlaw/client:packager
+      runs: docker run -it openlaw/client:packager ./scripts/release.sh
       env:
         LIVE: "1"
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      with:
-        args: ./scripts/release.sh
