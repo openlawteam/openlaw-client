@@ -15,6 +15,7 @@ jobs:
 
   lint-shell:
     runs-on: ubuntu-latest
+    steps:
     - uses: actions/checkout@v1
     - name: Shellcheck Lint
       uses: actions/bin/shellcheck@master
