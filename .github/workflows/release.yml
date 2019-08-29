@@ -1,0 +1,32 @@
+on: release
+name: Publish to NPM on release
+jobs:
+  dockerRegistryLogin:
+    name: Docker Registry Login
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Docker Registry Login
+      uses: actions/docker/login@master
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+    - name: Caching Build
+      uses: actions/docker/cli@master
+      env:
+        PUSH_CACHE: "1"
+      with:
+        entrypoint: sh
+        args: -c "BRANCH=${GITHUB_REF##*/} ID=gh ci/build.sh"
+    - name: Debug Event
+      uses: actions/bin/sh@master
+      with:
+        entrypoint: sh
+        args: -c "cat ${{ github.event_path }}"
+    - name: Publish
+      uses: docker://openlaw/client:packager
+      env:
+        LIVE: "1"
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      with:
+        args: ./scripts/release.sh

@@ -1,0 +1,20 @@
+on: push
+name: Build on push
+jobs:
+  dockerRegistryLogin:
+    name: Docker Registry Login
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Docker Registry Login
+      uses: actions/docker/login@master
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+    - name: Caching Build
+      uses: actions/docker/cli@master
+      env:
+        PUSH_CACHE: "1"
+      with:
+        entrypoint: sh
+        args: -c "BRANCH=${GITHUB_REF##*/} ID=gh ci/build.sh"
