@@ -1,0 +1,23 @@
+on: push
+name: Linters on push
+
+jobs:
+  lint-js:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '10.x'
+    - uses: actions/checkout@v1
+    - run: npm ci
+    - run: npm run lint
+    - run: npm run style
+
+  lint-shell:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Shellcheck Lint
+      uses: actions/bin/shellcheck@master
+      with:
+        args: scripts/*.sh ci/*.sh
