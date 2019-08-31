@@ -27,15 +27,7 @@ jobs:
       # TODO: delete debug event later when no longer needed.
 
       - name: Publish
-        uses: docker://openlaw/client:packager
-        with:
-          args: ./scripts/release.sh
+        run: docker run -e LIVE -e NPM_TOKEN openlaw/client:packager ./scripts/release.sh
         env:
           LIVE: "1"
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      # TODO(jarrel): ^^^ try the above more elegant try first, if it doesnt work, the below modification should.
-      # - name: Publish
-      #   run: docker run -e LIVE -e NPM_TOKEN openlaw/client:packager ./scripts/release.sh
-      #   env:
-      #     LIVE: "1"
-      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
