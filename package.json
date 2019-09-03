@@ -93,7 +93,7 @@
     "rollup-plugin-node-resolve": "^4.2.3",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^4.0.4",
-    "terser": "^3.17.0"
+    "terser": "^4.2.1"
   },
   "dependencies": {
     "@babel/runtime": "^7.4.4",
