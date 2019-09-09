@@ -12,4 +12,5 @@ jobs:
   dump:
     runs-on: ubuntu-latest
     steps:
+      - run: env
       - run: cat $GITHUB_EVENT_PATH
