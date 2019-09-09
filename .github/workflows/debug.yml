@@ -1,0 +1,15 @@
+# This is a temporary workflow to dump the event data payload on all pushes,
+# in order to provide some actual production data for developing better CI
+# scripts in the future.
+#
+# TODO: This should be deleted in a few weeks or so, if you are reading this
+# and it's past say.. October 9, 2019, ping @mroth to see if this file can be
+# deleted now.
+on: push
+name: Dump event data
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cat $GITHUB_EVENT_PATH
