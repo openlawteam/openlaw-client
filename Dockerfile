@@ -1,7 +1,7 @@
 # The scala-builder stage compiles Openlaw.scala into JavaScript output,
 # via the ScalaJS stuff. There are some other sbt dependencies that also
 # get bundled up into the output, including openlaw-core.
-FROM openlaw/scala-builder:node as builder
+FROM openlaw/scala-builder:0.10.0-node as builder
 # 1. install plugins and dependencies.
 # 
 # we do this in two different stages to take advantage of layer caching, with
