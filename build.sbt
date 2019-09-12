@@ -2,7 +2,15 @@ import scala.language.postfixOps
 
 licenses += ("Apache-2.0", url("https://opensource.org/licenses/Apache-2.0"))
 
-lazy val scalaV = "2.12.8"
+/*
+The Scala and SBT versions must be matched to the version of scala-builder used
+as the base image of the container. We try to standardize across projects and
+always upgrade in a controlled fashion.
+
+If you wish to update either Scala or SBT, please open an issue and and tag
+@openlawteam/infra.
+*/
+lazy val scalaV = "2.12.10"
 
 lazy val repositories = Seq(
   Resolver.jcenterRepo,
