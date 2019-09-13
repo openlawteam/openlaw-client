@@ -342,7 +342,7 @@ export class APIClient {
   }
 
   async getTemplateVersion(title: string, version: string): Promise<string> {
-    return this.getCall('/template/raw/' + title + '/' + version).then(
+    return this.getCall('/template/raw/' + encodeURI(title) + '/' + version).then(
       response => response.data,
     );
   }
