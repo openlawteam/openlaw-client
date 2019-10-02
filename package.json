@@ -76,7 +76,7 @@
     "cpy-cli": "^2.0.0",
     "eslint": "^6.4.0",
     "eslint-config-prettier": "^6.0.0",
-    "eslint-plugin-flowtype": "^3.6.1",
+    "eslint-plugin-flowtype": "^4.3.0",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-security": "^1.4.0",
