@@ -18,6 +18,4 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Shellcheck Lint
-        uses: actions/bin/shellcheck@master
-        with:
-          args: scripts/*.sh ci/*.sh
+        uses: azohra/shell-linter@v0.1.0
