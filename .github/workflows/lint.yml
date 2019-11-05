@@ -18,6 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Shellcheck Lint
-        uses: actions/bin/shellcheck@master
+        uses: reviewdog/action-shellcheck@v1
         with:
-          args: scripts/*.sh ci/*.sh
+          github_token: ${{ secrets.github_token }}
