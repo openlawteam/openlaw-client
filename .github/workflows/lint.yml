@@ -18,6 +18,4 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Shellcheck Lint
-        uses: reviewdog/action-shellcheck@v1
-        with:
-          github_token: ${{ secrets.github_token }}
+        uses: azohra/shell-linter@v0.1.0
