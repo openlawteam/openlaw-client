@@ -292,11 +292,11 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def renderForReview(agreement:StructuredAgreement, jsOverriddenParagraphs:js.Dictionary[String]): String =
-    render(agreement, Seq(), jsOverriddenParagraphs, markdown.forReview)
+    render(agreement, List(), jsOverriddenParagraphs, markdown.forReview)
 
   @JSExport
   def renderForPreview(agreement:StructuredAgreement, hiddenVariables:js.Array[String], jsOverriddenParagraphs:js.Dictionary[String]): String =
-    render(agreement, hiddenVariables, jsOverriddenParagraphs, markdown.forPreview)
+    render(agreement, hiddenVariables.toList, jsOverriddenParagraphs, markdown.forPreview)
 
   @JSExport
   def parseMarkdown(str:String):String = markdown.forReviewParagraph(str).getOrThrow()
@@ -305,7 +305,7 @@ object Openlaw extends LazyLogging {
   def renderParagraphForEdit(agreement: StructuredAgreement, index:Int): String =
     markdown.forReviewEdit(agreement.paragraphs(index - 1))
 
-  private def render(agreement:StructuredAgreement, hiddenVariables:Seq[String], jsOverriddenParagraphs:js.Dictionary[String], renderFunc:(StructuredAgreement, ParagraphEdits, Seq[String]) => String):String =
+  private def render(agreement:StructuredAgreement, hiddenVariables:List[String], jsOverriddenParagraphs:js.Dictionary[String], renderFunc:(StructuredAgreement, ParagraphEdits, List[String]) => String):String =
     renderFunc(agreement, prepareParagraphs(agreement, jsOverriddenParagraphs), hiddenVariables)
 
   @JSExport
