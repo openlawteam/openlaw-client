@@ -12,11 +12,11 @@ New code changes should always be introduced via a Pull Request branch:
 
 4. Ensure your Javascript code passes lints and adheres to our style guide. If you are not running a plugin in your editor that does this for you automatically, you can run `npm run lint:fix` and `npm run style:fix` respectively to automatically resolve any issues.
 
-5. Submit PR for merging that new branch into `master`. GitHub Actions will automatically attempt a build and run linter checks, which you can see here: https://github.com/openlawteam/openlaw-client/actions. If the build and all checks are passing, the PR can be merged to master.
+5. Submit PR for merging that new branch into `master`. GitHub Actions will automatically attempt a build and run linter checks, which you can see under [Actions](https://github.com/openlawteam/openlaw-client/actions). If the build and all checks are passing, the PR can be merged to master.
 
 ## Releasing to NPM :rocket:
 
-New releases are always cut from the `master` branch, and managed via GitHub Releases with [Semantic Versioning](https://semver.org/spec/v2.0.0.html) formatted tags. As a developer, this process is largely automated for you. Just make sure you are a [collaborator](https://github.com/openlawteam/openlaw-client/settings/collaboration) of openlaw-client and you have installed the `npm ci` and `npm np` packages. To make a release of the current status of master, follow these steps:
+New releases are always cut from the `master` branch, and managed via GitHub Releases with [Semantic Versioning](https://semver.org/spec/v2.0.0.html) formatted tags. As a developer, this process is largely automated for you. Just make sure you are a [collaborator](https://github.com/openlawteam/openlaw-client/settings/access) of openlaw-client and you have installed the `npm ci` and `npm np` packages. To make a release of the current status of master, follow these steps:
 
 1. Switch to `master` and pull the latest.
 
@@ -28,8 +28,8 @@ New releases are always cut from the `master` branch, and managed via GitHub Rel
 
    <small><i>§: Behind the scenes, the `package*.json` files will be updated with the new version, a new git commit and tag will be made and pushed to GitHub, and your web browser will be automatically opened to a draft release page for making a "release" of that tag.</i></small>
 
-5. Once a GitHub Release is published, our CI system (currently GitHub Actions) will automatically start the process to publish the package to NPM. You can monitor the progress for that action again here: https://github.com/openlawteam/openlaw-client/actions.
+5. Once a GitHub Release is published, our CI system (currently GitHub Actions) will automatically start the process to publish the package to NPM. You can monitor the progress for that action under [Actions](https://github.com/openlawteam/openlaw-client/actions).
 
-6. You will see three identical actions of `Publish to NPM on release`. One will eventually successfully publish the package while the other two will fail. Don't worry that is expected right now and it is a TODO to clean that up.
+6. You will see multiple identical actions of `Build and publish`. One will eventually successfully publish the package while the other will fail. Don't worry that is expected right now and it is a TODO to clean that up.
 
-7. Confirm that the package was successfully published with the latest version number by checking the NPM listing: https://www.npmjs.com/package/openlaw.
+7. Confirm that the package was successfully published with the latest version number by checking the [NPM listing](https://www.npmjs.com/package/openlaw).
