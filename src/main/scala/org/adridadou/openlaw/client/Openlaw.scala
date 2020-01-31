@@ -8,7 +8,6 @@ import org.adridadou.openlaw.parser.template.variableTypes._
 
 import scala.scalajs.js
 import cats.implicits._
-import org.adridadou.openlaw.oracles.OpenlawSignatureProof
 import org.adridadou.openlaw.parser.contract.ParagraphEdits
 import org.adridadou.openlaw.result.{Failure, Result, Success}
 import org.adridadou.openlaw.result.Implicits._
@@ -18,6 +17,7 @@ import slogging.LazyLogging
 import io.circe.parser._
 import io.circe.syntax._
 import org.adridadou.openlaw.OpenlawValue
+import org.adridadou.openlaw.oracles.SignatureProof
 import org.scalajs.dom
 
 import scala.scalajs.js.Dictionary
@@ -70,13 +70,26 @@ object Openlaw extends LazyLogging {
       compiledTemplate,
       prepareParameters(jsParams),
       prepareTemplates(jsTemplates),
-      signatureProofs = proofs.flatMap({ case (email, proof) => OpenlawSignatureProof.deserialize(proof).map(Email(email).getOrThrow() -> _).toOption}).toMap,
-      executions = Map(),
+      signatureProofs = prepareProofs(proofs.toMap).getOrThrow(),
+      executions = Map.empty,
       prepareStructures(externalCallStructures),
       contractId.toOption.map(ContractId(_)),
       profileAddress.toOption.map(EthereumAddress(_).getOrThrow())))
   }
 
+  private def prepareProofs(proofs:Map[String, String]):Result[Map[Email, SignatureProof]] = proofs.toList
+      .map({
+        case (strEmail, strProof) =>
+          for {
+            email <- Email(strEmail)
+            proof <- toResult(decode[SignatureProof](strProof))
+          } yield email -> proof
+      }).sequence.map(_.toMap)
+
+  private def toResult[T](r:Either[io.circe.Error, T]):Result[T] = r match {
+    case Right(v) => Success(v)
+    case Left(err) => Failure(err.getMessage)
+  }
   @JSExport
   def resumeExecution(executionResult:OpenlawExecutionState, jsTemplates:js.Dictionary[CompiledTemplate]) : js.Dictionary[Any] = {
     handleExecutionResult(engine.resumeExecution(executionResult, prepareTemplates(jsTemplates)))
@@ -507,8 +520,8 @@ object Openlaw extends LazyLogging {
         } else {
           VariableType.convert[CollectionValue](collectionType.cast(value, executionResult).getOrThrow()).getOrThrow()
         }
-      case _ =>
-        throw new RuntimeException(s"add element to collection only works for a variable of type Collection, not '${variable.varType(executionResult).name}'")
+      case other =>
+        throw new RuntimeException(s"add element to collection only works for a variable of type Collection, not '${other.name}'")
     }
   }
 
@@ -551,7 +564,7 @@ object Openlaw extends LazyLogging {
       .map({
         case (serviceName, jsonAbi) =>
           val abi = decode[IntegratedServiceDefinition](jsonAbi).toOption
-          serviceName -> abi.toResult(s"Missing or invalid abi for external service <$serviceName>, abi: <${jsonAbi}>").getOrThrow()
+          serviceName -> abi.toResult(s"Missing or invalid abi for external service <$serviceName>, abi: <$jsonAbi>").getOrThrow()
       })
   }
 }
