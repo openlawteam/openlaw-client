@@ -14,7 +14,7 @@ lazy val scalaV = "2.12.10"
 
 lazy val repositories = Seq(
   Resolver.jcenterRepo,
-  "central" at "http://central.maven.org/maven2/",
+  "central" at "https://repo1.maven.org/maven2/",
   "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
   "ethereumj repository" at "http://dl.bintray.com/ethereum/maven",
   "maven central" at "https://mvnrepository.com/repos/central",
