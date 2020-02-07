@@ -154,7 +154,6 @@ developer setup documentation.
 To manually verify, can run `make lint-style` to check and `make lint-style-fix`
 to automatically repair all files.
 
-
 ## License
 
 Copyright 2019 Aaron Wright, David Roon, and ConsenSys AG.
