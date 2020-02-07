@@ -19,3 +19,12 @@ jobs:
       - uses: actions/checkout@v1
       - name: Shellcheck Lint
         uses: azohra/shell-linter@v0.1.0
+
+  lint-scala:
+    name: Run scalafmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - uses: openlawteam/scalafmt-ci@v2
