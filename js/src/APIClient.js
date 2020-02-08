@@ -240,12 +240,6 @@ export class APIClient {
     );
   }
 
-  async disableFlowAccessToken(flowId: string): Promise<string> {
-    return this.postCall('/flow/disableToken/' + flowId).then(
-      response => response.data,
-    );
-  }
-
   async signContract(
     contractId: string,
     fullName: string,
