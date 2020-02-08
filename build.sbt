@@ -9,7 +9,7 @@ always upgrade in a controlled fashion.
 
 If you wish to update either Scala or SBT, please open an issue and and tag
 @openlawteam/infra.
-*/
+ */
 lazy val scalaV = "2.12.10"
 
 lazy val repositories = Seq(
@@ -23,18 +23,28 @@ lazy val repositories = Seq(
 )
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
-javacOptions ++= Seq("-Xms512M", "-Xmx1024M", "-Xss1M", "-XX:+CMSClassUnloadingEnabled")
+javacOptions ++= Seq(
+  "-Xms512M",
+  "-Xmx1024M",
+  "-Xss1M",
+  "-XX:+CMSClassUnloadingEnabled"
+)
 
-lazy val root = (project in file(".")).settings(
-  scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule).withESFeatures(_.withUseECMAScript2015(true))},
-  resolvers ++= repositories,
-  organization := "org.openlaw",
-  name := "openlaw-core-client",
-  scalaVersion := scalaV,
-  libraryDependencies ++= Seq(
-    "org.openlaw"              %%% "openlaw-core"              % "0.1.57"
-  ),
-  relativeSourceMaps := true,
-  artifactPath in (Compile, fullOptJS) := crossTarget.value / "client.js",
-  artifactPath in (Compile, fastOptJS) := crossTarget.value / "client.js"
-).enablePlugins(ScalaJSPlugin)
+lazy val root = (project in file("."))
+  .settings(
+    scalaJSLinkerConfig ~= {
+      _.withModuleKind(ModuleKind.ESModule)
+        .withESFeatures(_.withUseECMAScript2015(true))
+    },
+    resolvers ++= repositories,
+    organization := "org.openlaw",
+    name := "openlaw-core-client",
+    scalaVersion := scalaV,
+    libraryDependencies ++= Seq(
+      "org.openlaw" %%% "openlaw-core" % "0.1.57"
+    ),
+    relativeSourceMaps := true,
+    artifactPath in (Compile, fullOptJS) := crossTarget.value / "client.js",
+    artifactPath in (Compile, fastOptJS) := crossTarget.value / "client.js"
+  )
+  .enablePlugins(ScalaJSPlugin)

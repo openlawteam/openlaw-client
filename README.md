@@ -139,6 +139,21 @@ More detailed documentation about the release process is [here](docs/ReleaseProc
 
 See information about contributing [here](docs/CONTRIBUTING.md).
 
+### Code Formatting
+
+We adhere to standardized code formatting via [Prettier](https://prettier.io)
+and [scalafmt](https://scalameta.org/scalafmt/). All PRs will be automatically
+checked for adherence. If they do not adhere to standardized formatting, they
+should be corrected prior to being merged.
+
+The best way is let your editor handle everything for you everytime you hit
+save, see the [Scalafmt Installation
+Docs](https://scalameta.org/scalafmt/docs/installation.html) or the OpenLaw
+developer setup documentation.
+
+To manually verify, can run `make lint-style` to check and `make lint-style-fix`
+to automatically repair all files.
+
 ## License
 
 Copyright 2019 Aaron Wright, David Roon, and ConsenSys AG.
