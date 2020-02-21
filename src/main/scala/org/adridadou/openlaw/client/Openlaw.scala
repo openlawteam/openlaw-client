@@ -1,6 +1,6 @@
 package org.adridadou.openlaw.client
 
-import java.time.Clock
+import java.time.{Clock, LocalDateTime, ZoneOffset}
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import org.adridadou.openlaw.parser.template._
@@ -94,7 +94,8 @@ object Openlaw extends LazyLogging {
       jsParams: js.Dictionary[Any],
       externalCallStructures: js.Dictionary[Any],
       contractId: js.UndefOr[String],
-      profileAddress: js.UndefOr[String]
+      profileAddress: js.UndefOr[String],
+      contractCreationDate: js.UndefOr[Long]
   ): js.Dictionary[Any] = {
     handleExecutionResult(
       engine.execute(
@@ -105,6 +106,8 @@ object Openlaw extends LazyLogging {
         executions = Map.empty,
         prepareStructures(externalCallStructures),
         contractId.toOption.map(ContractId(_)),
+        contractCreationDate.toOption
+          .map(LocalDateTime.ofEpochSecond(_, 0, ZoneOffset.UTC)),
         profileAddress.toOption.map(EthereumAddress(_).getOrThrow())
       )
     )
