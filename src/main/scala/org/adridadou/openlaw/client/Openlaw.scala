@@ -11,7 +11,11 @@ import cats.implicits._
 import org.adridadou.openlaw.parser.contract.ParagraphEdits
 import org.adridadou.openlaw.result.{Failure, Result, Success}
 import org.adridadou.openlaw.result.Implicits._
-import org.adridadou.openlaw.values.{ContractId, TemplateParameters, TemplateTitle}
+import org.adridadou.openlaw.values.{
+  ContractId,
+  TemplateParameters,
+  TemplateTitle
+}
 import org.adridadou.openlaw.vm.OpenlawExecutionEngine
 import slogging.LazyLogging
 import io.circe.parser._
@@ -102,7 +106,8 @@ object Openlaw extends LazyLogging {
         executions = Map.empty,
         prepareStructures(externalCallStructures),
         contractId.toOption.map(ContractId(_)),
-        contractCreationDate.toOption.map(LocalDateTime.ofEpochSecond(_, 0, ZoneOffset.UTC)),
+        contractCreationDate.toOption
+          .map(LocalDateTime.ofEpochSecond(_, 0, ZoneOffset.UTC)),
         profileAddress.toOption.map(EthereumAddress(_).getOrThrow())
       )
     )
