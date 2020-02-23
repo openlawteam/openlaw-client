@@ -74,7 +74,7 @@ import { Openlaw, APIClient } from './path/to/openlaw/index.esm.js';
 import { APIClient } from "openlaw";
 
 // Include the root URL for the OpenLaw instance.
-apiClient = new APIClient("https://app.openlaw.io");
+apiClient = new APIClient("https://lib.openlaw.io/api/v1/default");
 
 /*
 Most of the APIClient method calls can only be made by a logged in
