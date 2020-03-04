@@ -108,7 +108,8 @@ object Openlaw extends LazyLogging {
         contractId.toOption.map(ContractId(_)),
         contractCreationDate.toOption
           .map(LocalDateTime.ofEpochSecond(_, 0, ZoneOffset.UTC)),
-        profileAddress.toOption.map(EthereumAddress(_).getOrThrow())
+        profileAddress.toOption.map(EthereumAddress(_).getOrThrow()),
+        (_, _) => None
       )
     )
   }
