@@ -13,29 +13,29 @@ export default [
     output: {
       name: 'openlaw',
       file: 'dist/umd/openlaw.js',
-      format: 'umd',
+      format: 'umd'
     },
     plugins: [
       babel({
         exclude: 'node_modules/**',
         // https://github.com/rollup/rollup-plugin-babel#helpers
-        runtimeHelpers: true,
+        runtimeHelpers: true
       }),
       resolve({
-        browser: true,
+        browser: true
       }),
       commonjs({
         include: 'node_modules/**'
       }),
       json(),
       replace({
-        'process.env.NODE_ENV': '"production"',
+        'process.env.NODE_ENV': '"production"'
       }),
       process.env.BUILD === 'development' ? undefined : terser()
     ],
     moduleContext: {
       'target/scala-2.12/client.js': 'window'
-    },
+    }
   },
 
   // index.esm.js: ESModule bundled single file
@@ -45,27 +45,27 @@ export default [
     output: [
       {
         file: 'dist/esm/index.esm.js',
-        format: 'es',
+        format: 'es'
       }
     ],
     plugins: [
       babel({
         exclude: 'node_modules/**',
         // https://github.com/rollup/rollup-plugin-babel#helpers
-        runtimeHelpers: true,
+        runtimeHelpers: true
       }),
       resolve({
-        browser: true,
+        browser: true
       }),
       commonjs(),
       replace({
-        'process.env.NODE_ENV': '"production"',
+        'process.env.NODE_ENV': '"production"'
       }),
       process.env.BUILD === 'development' ? undefined : terser({ module: true })
     ],
     moduleContext: {
       'target/scala-2.12/client.js': 'window'
-    },
+    }
   },
 
   // apiclient.esm.js: ESModule bundled single file
@@ -75,21 +75,21 @@ export default [
     output: [
       {
         file: 'dist/esm/apiclient.esm.js',
-        format: 'es',
+        format: 'es'
       }
     ],
     plugins: [
       babel({
         exclude: 'node_modules/**',
         // https://github.com/rollup/rollup-plugin-babel#helpers
-        runtimeHelpers: true,
+        runtimeHelpers: true
       }),
       resolve({
-        browser: true,
+        browser: true
       }),
       commonjs(),
       replace({
-        'process.env.NODE_ENV': '"production"',
+        'process.env.NODE_ENV': '"production"'
       }),
       process.env.BUILD === 'development' ? undefined : terser({ module: true })
     ]
@@ -102,7 +102,7 @@ export default [
     output: [
       {
         file: 'dist/esm/openlaw.esm.js',
-        format: 'es',
+        format: 'es'
       }
     ],
     plugins: [
@@ -110,7 +110,7 @@ export default [
     ],
     moduleContext: {
       'target/scala-2.12/client.js': 'window'
-    },
+    }
   },
 
   // CommonJS (node, also works in Webpack for web)
@@ -119,8 +119,8 @@ export default [
     output: [
       {
         file: pkg.main,
-        format: 'cjs',
-      },
+        format: 'cjs'
+      }
     ],
     external: [
       '@babel/runtime/regenerator',
@@ -129,18 +129,18 @@ export default [
       '@babel/runtime/helpers/createClass',
       '@babel/runtime/helpers/defineProperty',
       'axios',
-      'query-string',
+      'query-string'
     ],
     plugins: [
       babel({
         exclude: 'node_modules/**',
         // https://github.com/rollup/rollup-plugin-babel#helpers
-        runtimeHelpers: true,
+        runtimeHelpers: true
       }),
       process.env.BUILD === 'development' ? undefined : terser()
     ],
     moduleContext: {
       'target/scala-2.12/client.js': 'this'
-    },
+    }
   }
 ];
