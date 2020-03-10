@@ -8,7 +8,6 @@ import org.adridadou.openlaw.parser.template.variableTypes._
 
 import scala.scalajs.js
 import cats.implicits._
-import org.adridadou.openlaw.parser.contract.ParagraphEdits
 import org.adridadou.openlaw.result.{Failure, Result, Success}
 import org.adridadou.openlaw.result.Implicits._
 import org.adridadou.openlaw.values.{
@@ -455,10 +454,9 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def renderForReview(
-      agreement: StructuredAgreement,
-      jsOverriddenParagraphs: js.Dictionary[String]
+      agreement: StructuredAgreement
   ): String =
-    render(agreement, List(), jsOverriddenParagraphs, markdown.forReview)
+    markdown.forReview(agreement)
 
   @JSExport
   def renderForPreview(
@@ -466,36 +464,11 @@ object Openlaw extends LazyLogging {
       hiddenVariables: js.Array[String],
       jsOverriddenParagraphs: js.Dictionary[String]
   ): String =
-    render(
-      agreement,
-      hiddenVariables.toList,
-      jsOverriddenParagraphs,
-      markdown.forPreview
-    )
+    markdown.forPreview(agreement)
 
   @JSExport
   def parseMarkdown(str: String): String =
     markdown.forReviewParagraph(str).getOrThrow()
-
-  @JSExport
-  def renderParagraphForEdit(
-      agreement: StructuredAgreement,
-      index: Int
-  ): String =
-    markdown.forReviewEdit(agreement.paragraphs(index - 1))
-
-  private def render(
-      agreement: StructuredAgreement,
-      hiddenVariables: List[String],
-      jsOverriddenParagraphs: js.Dictionary[String],
-      renderFunc: (StructuredAgreement, ParagraphEdits, List[String]) => String
-  ): String =
-    renderFunc(
-      agreement,
-      prepareParagraphs(agreement, jsOverriddenParagraphs),
-      hiddenVariables
-    )
-
   @JSExport
   def checkValidity(
       variable: VariableDefinition,
@@ -522,32 +495,28 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def getExecutedVariables(
-      executionResult: TemplateExecutionResult,
-      jsDefinedValues: js.Dictionary[Any]
+      executionResult: TemplateExecutionResult
   ): js.Array[VariableDefinition] = {
     getVariables(
       executionResult,
-      executionResult.getExecutedVariables,
-      prepareParameters(jsDefinedValues)
+      executionResult.getExecutedVariables
     ).toJSArray
   }
 
   @JSExport
   def getVariables(
-      executionResult: TemplateExecutionResult,
-      jsDefinedValues: js.Dictionary[Any]
+      executionResult: TemplateExecutionResult
   ): js.Array[VariableDefinition] = {
     getVariables(
       executionResult,
-      executionResult.getAllVariableNames,
-      prepareParameters(jsDefinedValues)
+      executionResult.getAllVariableNames
     ).toJSArray
   }
 
   @JSExport
   def getAllConditionalVariableNames(
       executionResult: TemplateExecutionResult
-  ): js.Array[String] = {
+  ): js.Array[String] =
     executionResult.getAllVariables
       .map({ case (_, variable) => variable })
       .filter(
@@ -558,21 +527,17 @@ object Openlaw extends LazyLogging {
       .map(variable => variable.name.name)
       .distinct
       .toJSArray
-  }
 
   def getVariables(
       executionResult: TemplateExecutionResult,
-      variables: Seq[VariableName],
-      definedValues: TemplateParameters
+      variables: Seq[VariableName]
   ): Seq[VariableDefinition] = {
-    val predefinedVariables = definedValues.params.keys.toSet
     variables
       .flatMap(name => executionResult.getVariable(name))
       .filter(_.varType(executionResult) match {
         case _: NoShowInForm => false
         case _               => true
       })
-      .filter(variable => !predefinedVariables.contains(variable.name))
   }
 
   @JSExport
@@ -844,21 +809,6 @@ object Openlaw extends LazyLogging {
       .map({ case (key, value) => VariableName(key) -> value.toString })
 
     TemplateParameters(params.toMap)
-  }
-
-  private def prepareParagraphs(
-      agreement: StructuredAgreement,
-      jsParagraphs: js.Dictionary[String]
-  ): ParagraphEdits = {
-    if (js.isUndefined(jsParagraphs)) {
-      ParagraphEdits()
-    } else {
-      val edits = agreement.paragraphs.indices
-        .flatMap(index => jsParagraphs.get(index.toString).map(index -> _))
-        .toMap
-
-      ParagraphEdits(edits)
-    }
   }
 
   private def prepareTemplates(
