@@ -31,11 +31,7 @@ export default [
       replace({
         'process.env.NODE_ENV': '"production"',
       }),
-      (
-        process.env.BUILD === 'development'
-          ? () => {}
-          : terser()
-      ),
+      process.env.BUILD === 'development' ? undefined : terser()
     ],
     moduleContext: {
       'target/scala-2.12/client.js': 'window'
@@ -65,11 +61,7 @@ export default [
       replace({
         'process.env.NODE_ENV': '"production"',
       }),
-      (
-        process.env.BUILD === 'development'
-          ? () => {}
-          : terser({ module: true })
-      ),
+      process.env.BUILD === 'development' ? undefined : terser({ module: true })
     ],
     moduleContext: {
       'target/scala-2.12/client.js': 'window'
@@ -99,12 +91,8 @@ export default [
       replace({
         'process.env.NODE_ENV': '"production"',
       }),
-      (
-        process.env.BUILD === 'development'
-          ? () => {}
-          : terser({ module: true })
-      ),
-    ],
+      process.env.BUILD === 'development' ? undefined : terser({ module: true })
+    ]
   },
 
   // openlaw.esm.js: ESModule bundled single file
@@ -118,11 +106,7 @@ export default [
       }
     ],
     plugins: [
-      (
-        process.env.BUILD === 'development'
-          ? () => {}
-          : terser({ module: true })
-      ),
+      process.env.BUILD === 'development' ? undefined : terser({ module: true })
     ],
     moduleContext: {
       'target/scala-2.12/client.js': 'window'
@@ -153,11 +137,7 @@ export default [
         // https://github.com/rollup/rollup-plugin-babel#helpers
         runtimeHelpers: true,
       }),
-      (
-        process.env.BUILD === 'development'
-          ? () => {}
-          : terser()
-      ),
+      process.env.BUILD === 'development' ? undefined : terser()
     ],
     moduleContext: {
       'target/scala-2.12/client.js': 'this'
