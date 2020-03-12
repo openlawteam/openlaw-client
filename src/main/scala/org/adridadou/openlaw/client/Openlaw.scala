@@ -518,27 +518,21 @@ object Openlaw extends LazyLogging {
       executionResult: TemplateExecutionResult
   ): js.Array[String] =
     executionResult.getAllVariables
-      .map({ case (_, variable) => variable })
-      .filter(
-        _.variableTypeDefinition === Some(
-          VariableTypeDefinition(YesNoType.name)
-        )
-      )
-      .map(variable => variable.name.name)
+      .filter({ case (er, variable) => variable.varType(er) === YesNoType })
+      .map({ case (_, variable) => variable.name.name })
       .distinct
       .toJSArray
 
   def getVariables(
       executionResult: TemplateExecutionResult,
       variables: Seq[VariableName]
-  ): Seq[VariableDefinition] = {
+  ): Seq[VariableDefinition] =
     variables
       .flatMap(name => executionResult.getVariable(name))
       .filter(_.varType(executionResult) match {
         case _: NoShowInForm => false
         case _               => true
       })
-  }
 
   @JSExport
   def getAgreements(
