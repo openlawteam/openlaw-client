@@ -1,6 +1,6 @@
 package org.adridadou.openlaw.client
 
-import java.time.{Clock, LocalDateTime, ZoneOffset}
+import java.time.Instant
 
 import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 import org.adridadou.openlaw.parser.template._
@@ -32,13 +32,12 @@ import scala.scalajs.js.JSConverters._
 @JSExportTopLevel("Openlaw")
 object Openlaw extends LazyLogging {
 
-  val clock: Clock = Clock.systemDefaultZone()
   val engine = new OpenlawExecutionEngine
-  val markdown = new OpenlawTemplateLanguageParserService(clock)
+  val markdown = new OpenlawTemplateLanguageParserService()
 
   @JSExport
   def compileTemplate(text: String): js.Dictionary[Any] =
-    markdown.compileTemplate(text, clock) match {
+    markdown.compileTemplate(text) match {
       case Left(err) =>
         js.Dictionary(
           "isError" -> true,
@@ -74,7 +73,7 @@ object Openlaw extends LazyLogging {
       jsTemplates: js.Dictionary[CompiledTemplate],
       jsParams: js.Dictionary[Any],
       externalCallStructures: js.Dictionary[Any]
-  ): js.Dictionary[Any] = {
+  ): js.Dictionary[Any] =
     handleExecutionResult(
       engine.execute(
         compiledTemplate,
@@ -83,7 +82,6 @@ object Openlaw extends LazyLogging {
         prepareStructures(externalCallStructures)
       )
     )
-  }
 
   @JSExport
   def executeForReview(
@@ -95,7 +93,7 @@ object Openlaw extends LazyLogging {
       contractId: js.UndefOr[String],
       profileAddress: js.UndefOr[String],
       contractCreationDate: js.UndefOr[Long]
-  ): js.Dictionary[Any] = {
+  ): js.Dictionary[Any] =
     handleExecutionResult(
       engine.execute(
         compiledTemplate,
@@ -106,12 +104,11 @@ object Openlaw extends LazyLogging {
         prepareStructures(externalCallStructures),
         contractId.toOption.map(ContractId(_)),
         contractCreationDate.toOption
-          .map(LocalDateTime.ofEpochSecond(_, 0, ZoneOffset.UTC)),
+          .map(Instant.ofEpochSecond),
         profileAddress.toOption.map(EthereumAddress(_).getOrThrow()),
         (_, _) => None
       )
     )
-  }
 
   private def prepareProofs(
       proofs: Map[String, String]
@@ -226,7 +223,7 @@ object Openlaw extends LazyLogging {
             executionResult
           )
         )
-        .getOrElse(Seq())
+        .getOrElse(Seq.empty)
         .toJSArray
   }
 
@@ -249,10 +246,10 @@ object Openlaw extends LazyLogging {
               .getOrThrow()
               .map(variableType.internalFormat(_).getOrThrow())
               .toSeq
-          case _ => Seq()
+          case _ => Seq.empty
         })
-        .getOrElse(Seq())
-    case _ => Seq()
+        .getOrElse(Seq.empty)
+    case _ => Seq.empty
   }
 
   @JSExport
@@ -264,7 +261,7 @@ object Openlaw extends LazyLogging {
       structure.structure.names
         .map(name => structure.structure.typeDefinition(name))
         .toJSArray
-    case _ => Seq().toJSArray
+    case _ => Seq.empty.toJSArray
   }
 
   @JSExport
@@ -277,7 +274,7 @@ object Openlaw extends LazyLogging {
     case structureType: DefinedStructureType =>
       val values: Map[VariableName, OpenlawValue] = structureValue
         .map(structureType.cast(_, executionResult).getOrThrow().underlying)
-        .getOrElse(Map())
+        .getOrElse(Map.empty)
       (for {
         value <- values.get(field.name)
         fieldType <- structureType.structure.typeDefinition.get(field.name)
@@ -303,7 +300,7 @@ object Openlaw extends LazyLogging {
         case Some(fieldType) =>
           val currentMap = structureValue
             .map(structure.cast(_, executionResult).getOrThrow().underlying)
-            .getOrElse(Map())
+            .getOrElse(Map.empty)
           fieldValue.toOption match {
             case Some(value) =>
               val newMap = currentMap + (VariableName(fieldName) -> fieldType
@@ -398,7 +395,7 @@ object Openlaw extends LazyLogging {
   @JSExport
   def getInitialParameters(
       executionResult: TemplateExecutionResult
-  ): js.Array[js.Dictionary[String]] = {
+  ): js.Array[js.Dictionary[String]] =
     executionResult.getAllVariables
       .filter({
         case (_, variable) =>
@@ -416,7 +413,6 @@ object Openlaw extends LazyLogging {
           )
       })
       .toJSArray
-  }
 
   private def getInitialParameter(
       variable: VariableDefinition,
@@ -460,9 +456,7 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def renderForPreview(
-      agreement: StructuredAgreement,
-      hiddenVariables: js.Array[String],
-      jsOverriddenParagraphs: js.Dictionary[String]
+      agreement: StructuredAgreement
   ): String =
     markdown.forPreview(agreement)
 
@@ -496,22 +490,20 @@ object Openlaw extends LazyLogging {
   @JSExport
   def getExecutedVariables(
       executionResult: TemplateExecutionResult
-  ): js.Array[VariableDefinition] = {
+  ): js.Array[VariableDefinition] =
     getVariables(
       executionResult,
       executionResult.getExecutedVariables
     ).toJSArray
-  }
 
   @JSExport
   def getVariables(
       executionResult: TemplateExecutionResult
-  ): js.Array[VariableDefinition] = {
+  ): js.Array[VariableDefinition] =
     getVariables(
       executionResult,
       executionResult.getAllVariableNames
     ).toJSArray
-  }
 
   @JSExport
   def getAllConditionalVariableNames(
@@ -531,21 +523,20 @@ object Openlaw extends LazyLogging {
   def getVariables(
       executionResult: TemplateExecutionResult,
       variables: Seq[VariableName]
-  ): Seq[VariableDefinition] = {
+  ): Seq[VariableDefinition] =
     variables
       .flatMap(name => executionResult.getVariable(name))
       .filter(_.varType(executionResult) match {
         case _: NoShowInForm => false
         case _               => true
       })
-  }
 
   @JSExport
   def getAgreements(
       executionResult: TemplateExecutionResult
   ): js.Array[js.Dictionary[Any]] =
     executionResult.agreements
-      .map(agreement => {
+      .map(agreement =>
         executionResult.findExecutionResult(agreement.executionResultId) match {
           case Some(agreementExecutionResult) =>
             Dictionary[Any](
@@ -570,8 +561,7 @@ object Openlaw extends LazyLogging {
               "title" -> agreement.title.title
             )
         }
-
-      })
+      )
       .toJSArray
 
   @JSExport
@@ -600,17 +590,16 @@ object Openlaw extends LazyLogging {
     IdentityType.internalFormat(createIdentity(userId, email)).getOrThrow()
 
   @JSExport
-  def createIdentity(userId: js.UndefOr[String], email: String): Identity = {
+  def createIdentity(userId: js.UndefOr[String], email: String): Identity =
     Identity(
       email = Email(email).getOrThrow()
     )
-  }
 
   @JSExport
   def getIdentities(
       validationResult: ValidationResult,
       executionResult: TemplateExecutionResult
-  ): js.Array[VariableDefinition] = {
+  ): js.Array[VariableDefinition] =
     executionResult
       .getVariables(IdentityType, ExternalSignatureType)
       .map({ case (_, variable) => variable.name -> variable })
@@ -620,22 +609,20 @@ object Openlaw extends LazyLogging {
         validationResult.missingIdentities.contains(variable.name)
       )
       .toJSArray
-  }
 
   @JSExport
   def isSignatory(
       email: String,
       executionResult: TemplateExecutionResult
-  ): Boolean = {
+  ): Boolean =
     executionResult
       .getVariableValues[Identity](IdentityType)
       .getOrThrow()
       .exists(_.email.email === email) ||
-    executionResult
-      .getVariableValues[ExternalSignature](ExternalSignatureType)
-      .getOrThrow()
-      .exists(_.identity.exists(id => id.email.email === email))
-  }
+      executionResult
+        .getVariableValues[ExternalSignature](ExternalSignatureType)
+        .getOrThrow()
+        .exists(_.identity.exists(id => id.email.email === email))
 
   @JSExport
   def getSections(document: TemplateExecutionResult): js.Array[String] =
@@ -813,14 +800,13 @@ object Openlaw extends LazyLogging {
 
   private def prepareTemplates(
       jsTemplates: js.Dictionary[CompiledTemplate]
-  ): Map[TemplateSourceIdentifier, CompiledTemplate] = {
+  ): Map[TemplateSourceIdentifier, CompiledTemplate] =
     jsTemplates
       .map({
         case (name, template) =>
           TemplateSourceIdentifier(TemplateTitle(name)) -> template
       })
       .toMap
-  }
 
   private def prepareStructures(
       externalCallStructures: Dictionary[Any]
