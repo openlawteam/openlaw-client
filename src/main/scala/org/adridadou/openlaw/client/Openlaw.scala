@@ -165,7 +165,7 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def validateContract(
-      executionResult: OpenlawExecutionState
+      executionResult: TemplateExecutionResult
   ): ValidationResult =
     executionResult.validateExecution.getOrThrow()
 
@@ -485,7 +485,7 @@ object Openlaw extends LazyLogging {
 
   @JSExport
   def getTypes: js.Array[String] =
-    js.Array(VariableType.allTypes().map(_.name): _*)
+    js.Array(VariableType.allTypes.map(_.name): _*)
 
   @JSExport
   def getExecutedVariables(
