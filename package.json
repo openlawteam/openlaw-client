@@ -98,6 +98,6 @@
   "dependencies": {
     "@babel/runtime": "^7.9.2",
     "axios": "^0.18.1",
-    "query-string": "^6.9.0"
+    "query-string": "^6.11.1"
   }
 }
