@@ -70,7 +70,7 @@
     "@babel/plugin-transform-runtime": "^7.8.3",
     "@babel/preset-env": "^7.8.6",
     "@babel/preset-flow": "^7.8.3",
-    "babel-eslint": "^10.0.3",
+    "babel-eslint": "^10.1.0",
     "babel-preset-minify": "^0.5.0",
     "codacy-coverage": "^3.4.0",
     "cpy-cli": "^3.0.0",
