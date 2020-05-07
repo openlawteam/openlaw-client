@@ -3,6 +3,7 @@ name: Linters on push
 
 jobs:
   lint-js:
+    name: Run JS lints
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v1
