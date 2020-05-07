@@ -8,23 +8,24 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: "10.x"
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - run: npm ci
       - run: npm run lint
       - run: npm run style
 
   lint-shell:
-    runs-on: ubuntu-latest
+    name: Run shellcheck
+    runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
-      - name: Shellcheck Lint
-        uses: azohra/shell-linter@v0.1.0
+      - uses: actions/checkout@v2
+      - name: shellcheck
+        run: shellcheck
 
   lint-scala:
     name: Run scalafmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 1
       - uses: openlawteam/scalafmt-ci@v2
