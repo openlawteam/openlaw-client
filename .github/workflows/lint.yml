@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: shellcheck
-        run: shellcheck
+        run: shellcheck ci/*.sh scripts/*.sh
 
   lint-scala:
     name: Run scalafmt
