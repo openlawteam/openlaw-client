@@ -134,7 +134,7 @@ export class APIClient {
       }
 
       const urlRegex = new RegExp(
-        /templates\/json|draft\/json|contract\/docx|contract\/pdf|contract\/json/,
+        /templates\/json|contract\/docx|contract\/pdf|contract\/json/,
       );
 
       if (urlRegex.test(url)) {
@@ -174,16 +174,6 @@ export class APIClient {
     ).then(response => response.data);
   }
 
-  async uploadDraft(params: AnyObjectType): Promise<string> {
-    const headers = {
-      'Content-Type': 'text/plain;charset=UTF-8',
-    };
-
-    return this.postCall('/upload/draft', JSON.stringify(params), headers).then(
-      response => response.data,
-    );
-  }
-
   async uploadFlow(params: AnyObjectType): Promise<string> {
     const headers = {
       'Content-Type': 'text/plain;charset=UTF-8',
@@ -202,17 +192,6 @@ export class APIClient {
     return this.getCall('/driveAuthPage/' + id, headers);
   }
 
-  async sendDraft(
-    readonlyEmails: Array<string>,
-    editEmails: Array<string>,
-    id: string,
-  ) {
-    return this.postCall('/send/draft', {
-      readonlyEmails,
-      editEmails,
-      id,
-    });
-  }
   async prepareSignature(
     contractId: string,
     fullName: string,
@@ -309,20 +288,6 @@ export class APIClient {
     }).then(response => response.data);
   }
 
-  async getDraftVersions(
-    draftId: string,
-    pageSize: number,
-    page: number,
-    accessToken: ?string,
-  ): Promise<Array<Template>> {
-    return this.getCall('/drafts/version', {
-      draftId,
-      pageSize,
-      page,
-      accessToken,
-    }).then(response => response.data);
-  }
-
   async getTemplate(title: string): Promise<AnyObjectType> {
     return this.getCall('/template/raw/' + title).then(
       response => response.data,
@@ -339,16 +304,6 @@ export class APIClient {
     return this.getCall(
       '/template/raw/' + encodeURI(title) + '/' + version,
     ).then(response => response.data);
-  }
-
-  async getDraftVersion(
-    draftId: string,
-    version: number,
-    accessToken: ?string,
-  ): Promise<AnyObjectType> {
-    return this.getCall('/draft/raw/' + draftId + '/' + version, {
-      accessToken,
-    }).then(response => response.data);
   }
 
   async getContract(
@@ -480,13 +435,6 @@ export class APIClient {
     });
   }
 
-  async changeDraftAlias(draftId: string, newName: string) {
-    return this.getCall('/draft/alias/' + draftId, {
-      draftId,
-      newName,
-    });
-  }
-
   async searchContracts(
     keyword: string,
     page: number,
@@ -494,20 +442,6 @@ export class APIClient {
     sortBy: string,
   ) {
     return this.getCall('/contracts/search', {
-      keyword,
-      page,
-      pageSize,
-      sortBy,
-    }).then(response => response.data);
-  }
-
-  async searchDrafts(
-    keyword: string,
-    page: number,
-    pageSize: number,
-    sortBy: string,
-  ) {
-    return this.getCall('/drafts/search', {
       keyword,
       page,
       pageSize,
@@ -585,26 +519,6 @@ export class APIClient {
 
   async downloadTemplateAsJson(title: string) {
     return this.getCall('/templates/json/' + title).then(response => {
-      const blob = new Blob([response.data], {type: response.data.type});
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const contentDisposition = response.headers['content-disposition'];
-      let fileName = 'unknown';
-      if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(/filename=(.+)/);
-        if (fileNameMatch.length === 2) fileName = fileNameMatch[1];
-      }
-      link.setAttribute('download', fileName);
-      document.body && document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    });
-  }
-
-  async downloadDraftAsJson(draftId: string) {
-    return this.getCall('/draft/json/' + draftId).then(response => {
       const blob = new Blob([response.data], {type: response.data.type});
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');

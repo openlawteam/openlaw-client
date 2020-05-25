@@ -461,9 +461,6 @@ object Openlaw extends LazyLogging {
     markdown.forPreview(agreement)
 
   @JSExport
-  def parseMarkdown(str: String): String =
-    markdown.forReviewParagraph(str).getOrThrow()
-  @JSExport
   def checkValidity(
       variable: VariableDefinition,
       optValue: js.UndefOr[String],
