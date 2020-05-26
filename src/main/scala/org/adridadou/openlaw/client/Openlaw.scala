@@ -461,9 +461,6 @@ object Openlaw extends LazyLogging {
     markdown.forPreview(agreement)
 
   @JSExport
-  def parseMarkdown(str: String): String =
-    markdown.forReviewParagraph(str).getOrThrow()
-  @JSExport
   def checkValidity(
       variable: VariableDefinition,
       optValue: js.UndefOr[String],
@@ -635,12 +632,6 @@ object Openlaw extends LazyLogging {
     document.sections
       .map({ case (key, variables) => key -> variables.map(_.name).toJSArray })
       .toJSDictionary
-
-  @JSExport
-  def isDeal(template: CompiledTemplate): Boolean = template match {
-    case _: CompiledDeal => true
-    case _               => false
-  }
 
   @JSExport
   def isHidden(variableDefinition: VariableDefinition): Boolean =
