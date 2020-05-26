@@ -634,12 +634,6 @@ object Openlaw extends LazyLogging {
       .toJSDictionary
 
   @JSExport
-  def isDeal(template: CompiledTemplate): Boolean = template match {
-    case _: CompiledDeal => true
-    case _               => false
-  }
-
-  @JSExport
   def isHidden(variableDefinition: VariableDefinition): Boolean =
     variableDefinition.isHidden
 
