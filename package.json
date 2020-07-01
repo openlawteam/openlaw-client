@@ -77,7 +77,7 @@
     "eslint-config-prettier": "^6.3.0",
     "eslint-plugin-flowtype": "^4.6.0",
     "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-security": "^1.4.0",
     "flow-bin": "^0.124.0",
     "np": "^5.1.2",
