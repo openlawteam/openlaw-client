@@ -95,7 +95,7 @@
     "terser": "^4.6.10"
   },
   "dependencies": {
-    "@babel/runtime": "^7.9.6",
+    "@babel/runtime": "^7.10.4",
     "axios": "^0.18.1",
     "query-string": "^6.11.1"
   }
