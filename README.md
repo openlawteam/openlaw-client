@@ -83,7 +83,7 @@ those calls.
 */
 apiClient.login("openlawuser+1@gmail.com", "password");
 
-apiClient.getTemplate("Advisor Agreement").then(result => {
+apiClient.getTemplate("Advisor Agreement").then((result) => {
   console.log(result);
 });
 /*

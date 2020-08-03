@@ -95,13 +95,13 @@ export class APIClient {
       }
 
       return axios(postCallDetails)
-        .then(result => {
+        .then((result) => {
           if (result.headers['openlaw_jwt']) {
             this.jwt = result.headers['openlaw_jwt'];
           }
           return result;
         })
-        .catch(error => {
+        .catch((error) => {
           throw error;
         });
     });
@@ -143,13 +143,13 @@ export class APIClient {
 
       return axios
         .get(this.conf.root + url + paramsUrl, getCallDetails)
-        .then(result => {
+        .then((result) => {
           if (result.headers['openlaw_jwt']) {
             this.jwt = result.headers['openlaw_jwt'];
           }
           return result;
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.data) {
             throw error.data;
           }
@@ -171,7 +171,7 @@ export class APIClient {
       '/upload/contract',
       JSON.stringify(params),
       headers,
-    ).then(response => response.data);
+    ).then((response) => response.data);
   }
 
   async uploadFlow(params: AnyObjectType): Promise<string> {
@@ -179,7 +179,7 @@ export class APIClient {
       'Content-Type': 'text/plain;charset=UTF-8',
     };
     return this.postCall('/upload/flow', JSON.stringify(params), headers).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
@@ -209,13 +209,13 @@ export class APIClient {
 
   async getFlowAccessToken(flowId: string): Promise<string> {
     return this.getCall('/flow/token/' + flowId).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
   async generateFlowAccessToken(flowId: string): Promise<string> {
     return this.postCall('/flow/updateToken/' + flowId).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
@@ -237,7 +237,7 @@ export class APIClient {
     return this.getCall('/contract/sign/status', {
       id: contractId,
       accessToken,
-    }).then(result => result.data);
+    }).then((result) => result.data);
   }
 
   async stopContract(id: string) {
@@ -265,7 +265,7 @@ export class APIClient {
   }
 
   async getCurrentNetwork() {
-    return this.getCall('/network').then(response => response.data);
+    return this.getCall('/network').then((response) => response.data);
   }
 
   async saveTemplate(title: string, value: string) {
@@ -285,25 +285,25 @@ export class APIClient {
       title,
       pageSize,
       page,
-    }).then(response => response.data);
+    }).then((response) => response.data);
   }
 
   async getTemplate(title: string): Promise<AnyObjectType> {
     return this.getCall('/template/raw/' + title).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
   async getTemplateById(id: string): Promise<AnyObjectType> {
     return this.getCall('/template/id/raw/' + id).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
   async getTemplateVersion(title: string, version: string): Promise<string> {
     return this.getCall(
       '/template/raw/' + encodeURI(title) + '/' + version,
-    ).then(response => response.data);
+    ).then((response) => response.data);
   }
 
   async getContract(
@@ -311,13 +311,13 @@ export class APIClient {
     accessToken: ?string,
   ): Promise<AnyObjectType> {
     return this.getCall('/contract/raw/' + contractId, {accessToken}).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
   async getFlow(flowId: string, accessToken: ?string): Promise<AnyObjectType> {
     return this.getCall('/flow/raw/' + flowId, {accessToken}).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
@@ -326,12 +326,12 @@ export class APIClient {
       keyword,
       page,
       pageSize,
-    }).then(response => response.data);
+    }).then((response) => response.data);
   }
 
   async deleteUser(userId: string) {
     return this.getCall('/users/delete', {userId}).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
@@ -352,7 +352,7 @@ export class APIClient {
       keyword,
       page,
       pageSize,
-    }).then(response => response.data);
+    }).then((response) => response.data);
   }
 
   async searchDeletedTemplates(
@@ -364,7 +364,7 @@ export class APIClient {
       keyword,
       page,
       pageSize,
-    }).then(response => response.data);
+    }).then((response) => response.data);
   }
 
   async deleteTemplate(name: string) {
@@ -446,24 +446,24 @@ export class APIClient {
       page,
       pageSize,
       sortBy,
-    }).then(response => response.data);
+    }).then((response) => response.data);
   }
 
   async searchAddress(term: string) {
     return this.getCall('/address/search', {term}).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
   async getAddressDetails(placeId: string) {
     return this.getCall('/address/details', {placeId}).then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
   async getStripeAccounts() {
     return this.getCall('/user/getStripeAccounts').then(
-      response => response.data,
+      (response) => response.data,
     );
   }
 
@@ -472,12 +472,12 @@ export class APIClient {
       filter,
       page,
       pageSize,
-    }).then(response => response.data);
+    }).then((response) => response.data);
   }
 
   async downloadAsDocx(params: AnyObjectType) {
     const data = JSON.stringify(params);
-    return this.postCall('/download/contract/docx', {data}).then(response => {
+    return this.postCall('/download/contract/docx', {data}).then((response) => {
       const blob = new Blob([response.data], {type: response.data.type});
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -498,7 +498,7 @@ export class APIClient {
 
   async downloadAsPdf(params: AnyObjectType) {
     const data = JSON.stringify(params);
-    return this.postCall('/download/contract/pdf', {data}).then(response => {
+    return this.postCall('/download/contract/pdf', {data}).then((response) => {
       const blob = new Blob([response.data], {type: response.data.type});
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -518,7 +518,7 @@ export class APIClient {
   }
 
   async downloadTemplateAsJson(title: string) {
-    return this.getCall('/templates/json/' + title).then(response => {
+    return this.getCall('/templates/json/' + title).then((response) => {
       const blob = new Blob([response.data], {type: response.data.type});
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -538,7 +538,7 @@ export class APIClient {
   }
 
   async downloadContractAsDocx(contractId: string) {
-    return this.getCall('/contract/docx/' + contractId).then(response => {
+    return this.getCall('/contract/docx/' + contractId).then((response) => {
       const blob = new Blob([response.data], {type: response.data.type});
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -558,7 +558,7 @@ export class APIClient {
   }
 
   async downloadContractAsPdf(contractId: string) {
-    return this.getCall('/contract/pdf/' + contractId).then(response => {
+    return this.getCall('/contract/pdf/' + contractId).then((response) => {
       const blob = new Blob([response.data], {type: response.data.type});
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -578,7 +578,7 @@ export class APIClient {
   }
 
   async downloadContractAsJson(contractId: string) {
-    return this.getCall('/contract/json/' + contractId).then(response => {
+    return this.getCall('/contract/json/' + contractId).then((response) => {
       const blob = new Blob([response.data], {type: response.data.type});
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
