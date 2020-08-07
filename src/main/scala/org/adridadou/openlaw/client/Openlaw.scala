@@ -10,7 +10,11 @@ import scala.scalajs.js
 import cats.implicits._
 import org.adridadou.openlaw.result.{Failure, Result, Success, attempt}
 import org.adridadou.openlaw.result.Implicits._
-import org.adridadou.openlaw.values.{ContractId, TemplateParameters, TemplateTitle}
+import org.adridadou.openlaw.values.{
+  ContractId,
+  TemplateParameters,
+  TemplateTitle
+}
 import org.adridadou.openlaw.vm.{Executions, OpenlawExecutionEngine}
 import slogging.LazyLogging
 import io.circe.parser._
@@ -107,17 +111,21 @@ object Openlaw extends LazyLogging {
       )
     )
 
-  private def prepareExecutions(executions: Map[String, String]): Result[Map[ActionIdentifier, Executions]] = {
-    executions.toList.map { case (k, v) =>
-      for {
-        one <- decode[ActionIdentifier](k)
-        two <- decode[Executions](v)
-      } yield one -> two
-    }
+  private def prepareExecutions(
+      executions: Map[String, String]
+  ): Result[Map[ActionIdentifier, Executions]] = {
+    executions.toList
+      .map {
+        case (k, v) =>
+          for {
+            one <- decode[ActionIdentifier](k)
+            two <- decode[Executions](v)
+          } yield one -> two
+      }
       .sequence
       .map(_.toMap)
   } match {
-    case Right(map) => Success(map)
+    case Right(map)  => Success(map)
     case Left(error) => Failure(error)
   }
 
