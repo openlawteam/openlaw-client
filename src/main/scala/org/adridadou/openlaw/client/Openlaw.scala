@@ -8,14 +8,10 @@ import org.adridadou.openlaw.parser.template.variableTypes._
 
 import scala.scalajs.js
 import cats.implicits._
-import org.adridadou.openlaw.result.{Failure, Result, Success}
+import org.adridadou.openlaw.result.{Failure, Result, Success, attempt}
 import org.adridadou.openlaw.result.Implicits._
-import org.adridadou.openlaw.values.{
-  ContractId,
-  TemplateParameters,
-  TemplateTitle
-}
-import org.adridadou.openlaw.vm.OpenlawExecutionEngine
+import org.adridadou.openlaw.values.{ContractId, TemplateParameters, TemplateTitle}
+import org.adridadou.openlaw.vm.{Executions, OpenlawExecutionEngine}
 import slogging.LazyLogging
 import io.circe.parser._
 import io.circe.syntax._
@@ -89,6 +85,7 @@ object Openlaw extends LazyLogging {
       proofs: js.Dictionary[String],
       jsTemplates: js.Dictionary[CompiledTemplate],
       jsParams: js.Dictionary[Any],
+      executions: js.Dictionary[String],
       externalCallStructures: js.Dictionary[Any],
       contractId: js.UndefOr[String],
       profileAddress: js.UndefOr[String],
@@ -100,7 +97,7 @@ object Openlaw extends LazyLogging {
         prepareParameters(jsParams),
         prepareTemplates(jsTemplates),
         signatureProofs = prepareProofs(proofs.toMap).getOrThrow(),
-        executions = Map.empty,
+        executions = prepareExecutions(executions.toMap).getOrThrow(),
         prepareStructures(externalCallStructures),
         contractId.toOption.map(ContractId(_)),
         contractCreationDate.toOption
@@ -109,6 +106,20 @@ object Openlaw extends LazyLogging {
         (_, _) => None
       )
     )
+
+  private def prepareExecutions(executions: Map[String, String]): Result[Map[ActionIdentifier, Executions]] = {
+    executions.toList.map { case (k, v) =>
+      for {
+        one <- decode[ActionIdentifier](k)
+        two <- decode[Executions](v)
+      } yield one -> two
+    }
+      .sequence
+      .map(_.toMap)
+  } match {
+    case Right(map) => Success(map)
+    case Left(error) => Failure(error)
+  }
 
   private def prepareProofs(
       proofs: Map[String, String]
